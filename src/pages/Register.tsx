@@ -22,12 +22,15 @@ import {
   Dna,
   Database,
   Shield,
-  Globe
+  Globe,
+  ArrowRight
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useWeb3 } from "@/contexts/Web3Context";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { connectWallet, walletStatus } = useWeb3();
   const [selectedRole, setSelectedRole] = useState("donor");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,6 +48,10 @@ const Register = () => {
       // Redirect to login after registration
       setTimeout(() => navigate("/"), 2000);
     }, 1500);
+  };
+
+  const handleDonorContinue = () => {
+    navigate('/donor-registration');
   };
 
   return (
@@ -91,102 +98,60 @@ const Register = () => {
             
             <CardContent>
               <TabsContent value="donor" className="space-y-4">
-                <form onSubmit={handleRegister}>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="first-name">First Name</Label>
-                        <Input id="first-name" placeholder="John" required />
+                <div className="rounded-lg border p-6 bg-gradient-to-br from-primary/10 to-transparent">
+                  <h3 className="text-lg font-semibold mb-2">Become an Organ Donor</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    By registering as an organ donor, you can help save lives. Your information will be securely 
+                    stored on the blockchain and you'll receive an NFT badge certifying your donor status.
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Shield className="h-4 w-4 text-green-500" />
+                        <span>Secure</span>
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="last-name">Last Name</Label>
-                        <Input id="last-name" placeholder="Doe" required />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="donor-email">Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="donor-email" type="email" placeholder="name@example.com" className="pl-10" required />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="donor-password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="donor-password" type="password" placeholder="••••••••" className="pl-10" required />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="donor-type">I am registering as</Label>
-                      <Select defaultValue="both">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="donor">Organ Donor</SelectItem>
-                          <SelectItem value="recipient">Organ Recipient</SelectItem>
-                          <SelectItem value="both">Both</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="blood-type">Blood Type</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select blood type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="A+">A+</SelectItem>
-                          <SelectItem value="A-">A-</SelectItem>
-                          <SelectItem value="B+">B+</SelectItem>
-                          <SelectItem value="B-">B-</SelectItem>
-                          <SelectItem value="AB+">AB+</SelectItem>
-                          <SelectItem value="AB-">AB-</SelectItem>
-                          <SelectItem value="O+">O+</SelectItem>
-                          <SelectItem value="O-">O-</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="terms" required />
-                      <Label htmlFor="terms" className="text-sm">
-                        I agree to the{" "}
-                        <Link to="/terms" className="text-primary hover:underline">
-                          terms and conditions
-                        </Link>
-                      </Label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="wallet" />
-                      <Label htmlFor="wallet" className="text-sm flex items-center gap-1">
-                        <Wallet className="h-3 w-3" />
-                        I have a Web3 wallet (optional)
-                      </Label>
-                    </div>
-                    
-                    <div className="rounded-lg border p-3 bg-secondary/20">
-                      <div className="flex items-center gap-2">
-                        <Database className="h-4 w-4 text-primary" />
-                        <h4 className="text-sm font-semibold">Blockchain Privacy Notice</h4>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Your sensitive medical data will be encrypted. Only organ metadata and matching information will be stored on the blockchain.
+                      <p className="text-xs text-muted-foreground">
+                        Your medical data is encrypted and protected
                       </p>
                     </div>
-                    
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      Create Account
-                      {isLoading && <span className="ml-2 animate-spin">◌</span>}
-                    </Button>
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Dna className="h-4 w-4 text-blue-500" />
+                        <span>AI Matching</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Advanced matching with recipients
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Database className="h-4 w-4 text-purple-500" />
+                        <span>Blockchain</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Immutable record of your consent
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Globe className="h-4 w-4 text-amber-500" />
+                        <span>Global Impact</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Help recipients worldwide
+                      </p>
+                    </div>
                   </div>
-                </form>
+                  
+                  <Button 
+                    className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                    onClick={handleDonorContinue}
+                  >
+                    Continue to Registration
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </TabsContent>
               
               <TabsContent value="hospital" className="space-y-4">

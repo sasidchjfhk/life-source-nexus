@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Web3Provider } from "./contexts/Web3Context";
 import Index from "./pages/Index";
 import Register from "./pages/Register";
+import DonorRegistration from "./pages/DonorRegistration";
 import DonorDashboard from "./pages/DonorDashboard";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -24,6 +25,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/donor-registration" element={<DonorRegistration />} />
             <Route path="/donor-dashboard" element={<DonorDashboard />} />
             <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />

@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 
 type WalletStatus = 'disconnected' | 'connecting' | 'connected';
@@ -11,6 +11,11 @@ interface Web3ContextType {
   disconnectWallet: () => void;
   mintNFTBadge: (badgeName: string) => Promise<string>;
   isOnBlockchain: boolean;
+  registerOrganDonor: (donorData: any) => Promise<string>;
+  verifyHospital: (hospitalId: string) => Promise<boolean>;
+  getOrganMatchScore: (donorId: string, recipientId: string) => Promise<number>;
+  reportFraud: (entityId: string, reason: string) => Promise<void>;
+  checkFraudScore: (entityId: string) => Promise<number>;
 }
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined);
@@ -19,6 +24,16 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [walletStatus, setWalletStatus] = useState<WalletStatus>('disconnected');
   const [isOnBlockchain, setIsOnBlockchain] = useState(false);
+
+  // Check if wallet was previously connected
+  useEffect(() => {
+    const savedWallet = localStorage.getItem('walletAddress');
+    if (savedWallet) {
+      setWalletAddress(savedWallet);
+      setWalletStatus('connected');
+      setIsOnBlockchain(true);
+    }
+  }, []);
 
   // Simulate wallet connection
   const connectWallet = async (): Promise<void> => {
@@ -35,6 +50,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         setWalletStatus('connected');
         setIsOnBlockchain(true);
         
+        // Save wallet address to localStorage
+        localStorage.setItem('walletAddress', mockAddress);
+        
         toast({
           title: "Wallet Connected",
           description: `Connected to ${mockAddress.substring(0, 6)}...${mockAddress.substring(38)}`,
@@ -50,6 +68,9 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     setWalletAddress(null);
     setWalletStatus('disconnected');
     setIsOnBlockchain(false);
+    
+    // Remove wallet address from localStorage
+    localStorage.removeItem('walletAddress');
     
     toast({
       title: "Wallet Disconnected",
@@ -83,6 +104,120 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  // Simulate organ donor registration on blockchain
+  const registerOrganDonor = async (donorData: any): Promise<string> => {
+    if (walletStatus !== 'connected') {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet first.",
+        variant: "destructive"
+      });
+      throw new Error("Wallet not connected");
+    }
+    
+    // Simulate blockchain transaction delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const transactionHash = '0x' + Array(64).fill(0).map(() => 
+          Math.floor(Math.random() * 16).toString(16)
+        ).join('');
+        
+        toast({
+          title: "Donor Registration Successful",
+          description: "Your data has been securely registered on the blockchain.",
+        });
+        
+        resolve(transactionHash);
+      }, 3000);
+    });
+  };
+
+  // Simulate hospital verification on blockchain
+  const verifyHospital = async (hospitalId: string): Promise<boolean> => {
+    if (walletStatus !== 'connected') {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet first.",
+        variant: "destructive"
+      });
+      throw new Error("Wallet not connected");
+    }
+    
+    // Simulate verification delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // 90% chance of successful verification
+        const isVerified = Math.random() < 0.9;
+        
+        if (isVerified) {
+          toast({
+            title: "Hospital Verified",
+            description: `Hospital ID ${hospitalId} has been verified on the blockchain.`,
+          });
+        } else {
+          toast({
+            title: "Verification Failed",
+            description: "Hospital could not be verified. Please check the information and try again.",
+            variant: "destructive"
+          });
+        }
+        
+        resolve(isVerified);
+      }, 2500);
+    });
+  };
+
+  // Simulate AI organ matching
+  const getOrganMatchScore = async (donorId: string, recipientId: string): Promise<number> => {
+    // Simulate AI processing delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Generate a random match score between 1 and 100
+        const matchScore = Math.floor(Math.random() * 100) + 1;
+        
+        resolve(matchScore);
+      }, 1500);
+    });
+  };
+
+  // Simulate fraud reporting
+  const reportFraud = async (entityId: string, reason: string): Promise<void> => {
+    if (walletStatus !== 'connected') {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet first.",
+        variant: "destructive"
+      });
+      throw new Error("Wallet not connected");
+    }
+    
+    // Simulate blockchain transaction delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        toast({
+          title: "Fraud Reported",
+          description: `Entity ${entityId} has been reported for potential fraud.`,
+        });
+        
+        resolve();
+      }, 2000);
+    });
+  };
+
+  // Simulate AI fraud detection
+  const checkFraudScore = async (entityId: string): Promise<number> => {
+    // Simulate AI processing delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Generate a random fraud score between 1 and 100
+        // Higher score means higher likelihood of fraud
+        const fraudScore = Math.floor(Math.random() * 100) + 1;
+        
+        resolve(fraudScore);
+      }, 1000);
+    });
+  };
+
   return (
     <Web3Context.Provider 
       value={{
@@ -91,7 +226,12 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         connectWallet,
         disconnectWallet,
         mintNFTBadge,
-        isOnBlockchain
+        isOnBlockchain,
+        registerOrganDonor,
+        verifyHospital,
+        getOrganMatchScore,
+        reportFraud,
+        checkFraudScore
       }}
     >
       {children}
