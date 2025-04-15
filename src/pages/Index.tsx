@@ -1,327 +1,134 @@
 
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { 
-  User, 
-  Hospital, 
-  Building2, 
-  ShieldCheck,
-  Mail, 
-  Lock, 
-  Github, 
-  Wallet,
-  Globe,
-  Database,
-  Heart,
-  Dna
-} from "lucide-react";
+import { Heart, Dna, Hospital, User, ShieldCheck, ArrowRight, LogIn } from "lucide-react";
 
 const Index = () => {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [selectedRole, setSelectedRole] = useState("donor");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    // Simulate login - in a real app, this would connect to Firebase or Web3
-    setTimeout(() => {
-      toast({
-        title: "Login Successful",
-        description: `Logged in as ${selectedRole}`,
-      });
-      
-      setIsLoading(false);
-      // Redirect based on role
-      if (selectedRole === "donor") {
-        navigate("/donor-dashboard");
-      } else if (selectedRole === "hospital") {
-        navigate("/hospital-dashboard");
-      } else if (selectedRole === "admin") {
-        navigate("/admin-dashboard");
-      }
-    }, 1500);
-  };
-
-  const handleWalletConnect = () => {
-    setIsLoading(true);
-    // Simulate Web3 wallet connection
-    setTimeout(() => {
-      toast({
-        title: "Wallet Connected",
-        description: "MetaMask wallet connected successfully. Your blockchain identity is verified.",
-      });
-      
-      setIsLoading(false);
-      setTimeout(() => navigate("/donor-dashboard"), 1000);
-    }, 1500);
-  };
-
-  const handleGoogleLogin = () => {
-    setIsLoading(true);
-    // Simulate Google OAuth
-    setTimeout(() => {
-      toast({
-        title: "Google Authentication",
-        description: "Logging in with Google...",
-      });
-      
-      setIsLoading(false);
-      setTimeout(() => navigate("/donor-dashboard"), 1000);
-    }, 1500);
-  };
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="flex justify-center items-center mb-3">
-            <Heart className="h-10 w-10 text-primary" />
-            <Dna className="h-10 w-10 ml-1 text-primary" />
-          </div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-primary/5">
+      <header className="container py-8">
+        <div className="flex items-center justify-center gap-3">
+          <Heart className="h-10 w-10 text-primary" />
+          <Dna className="h-10 w-10 text-primary" />
           <h1 className="text-4xl font-bold tracking-tight text-primary">Life Source Nexus</h1>
-          <p className="mt-2 text-xl text-muted-foreground">Blockchain-powered organ donation platform</p>
-          <div className="flex justify-center mt-2 space-x-2">
-            <div className="flex items-center gap-1 bg-accent/50 text-accent-foreground rounded-full px-3 py-1 text-xs">
-              <Database className="h-3 w-3" />
-              <span>Blockchain Secured</span>
+        </div>
+        <p className="text-center text-xl mt-2 text-muted-foreground">
+          Blockchain-powered organ donation platform
+        </p>
+      </header>
+      
+      <main className="flex-1 container py-12">
+        <div className="max-w-4xl mx-auto text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">Welcome to Life Source Nexus</h2>
+          <p className="text-lg text-muted-foreground">
+            Our platform revolutionizes organ donation through blockchain technology, 
+            AI matching algorithms, and secure data management.
+          </p>
+          
+          <div className="mt-8 flex flex-wrap gap-4 justify-center">
+            <Button asChild size="lg" className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700">
+              <Link to="/register" className="flex items-center gap-2">
+                <LogIn className="h-5 w-5" />
+                <span>Register Now</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/" className="flex items-center gap-2">
+                <LogIn className="h-5 w-5" />
+                <span>Login</span>
+              </Link>
+            </Button>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          <div className="bg-card rounded-lg shadow-lg overflow-hidden border border-border/50 transition-all hover:shadow-xl hover:-translate-y-1">
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+                <User className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Donor Registration</h3>
+              <p className="text-muted-foreground mb-4">
+                Register as an organ donor and receive an NFT badge certifying your donor status.
+              </p>
+              <Button asChild variant="ghost" className="w-full group">
+                <Link to="/donor-registration" className="flex items-center justify-between">
+                  <span>Become a Donor</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
             </div>
-            <div className="flex items-center gap-1 bg-accent/50 text-accent-foreground rounded-full px-3 py-1 text-xs">
-              <Globe className="h-3 w-3" />
-              <span>Web3 Enabled</span>
+          </div>
+          
+          <div className="bg-card rounded-lg shadow-lg overflow-hidden border border-border/50 transition-all hover:shadow-xl hover:-translate-y-1">
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
+                <Hospital className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Hospital Portal</h3>
+              <p className="text-muted-foreground mb-4">
+                Access our hospital dashboard to manage organ donation requests and matches.
+              </p>
+              <Button asChild variant="ghost" className="w-full group">
+                <Link to="/hospital-dashboard" className="flex items-center justify-between">
+                  <span>Hospital Login</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+          
+          <div className="bg-card rounded-lg shadow-lg overflow-hidden border border-border/50 transition-all hover:shadow-xl hover:-translate-y-1">
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
+                <ShieldCheck className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Admin Portal</h3>
+              <p className="text-muted-foreground mb-4">
+                Administrative tools for hospital verification and fraud detection.
+              </p>
+              <Button asChild variant="ghost" className="w-full group">
+                <Link to="/admin-dashboard" className="flex items-center justify-between">
+                  <span>Admin Login</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
         
-        <Card className="w-full backdrop-blur-sm bg-card/80 border-border/50 shadow-xl">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">Login</CardTitle>
-            <CardDescription className="text-center">
-              Select your role to continue
-            </CardDescription>
-          </CardHeader>
-          
-          <Tabs defaultValue="donor" className="w-full" onValueChange={setSelectedRole}>
-            <TabsList className="grid grid-cols-3 mb-4 mx-4">
-              <TabsTrigger value="donor" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Donor/Recipient</span>
-                <span className="sm:hidden">Donor</span>
-              </TabsTrigger>
-              <TabsTrigger value="hospital" className="flex items-center gap-2">
-                <Hospital className="h-4 w-4" />
-                <span>Hospital</span>
-              </TabsTrigger>
-              <TabsTrigger value="admin" className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" />
-                <span>Admin</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <CardContent>
-              <TabsContent value="donor" className="space-y-4">
-                <div className="space-y-2">
-                  <Button 
-                    variant="outline" 
-                    className="w-full flex items-center justify-center gap-2"
-                    onClick={handleGoogleLogin}
-                    disabled={isLoading}
-                  >
-                    <svg className="h-4 w-4" viewBox="0 0 24 24">
-                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                    </svg>
-                    Continue with Google
-                    {isLoading && <span className="ml-2 animate-spin">◌</span>}
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full flex items-center justify-center gap-2"
-                    onClick={handleWalletConnect}
-                    disabled={isLoading}
-                  >
-                    <Wallet className="h-4 w-4" />
-                    Connect Web3 Wallet
-                    {isLoading && <span className="ml-2 animate-spin">◌</span>}
-                  </Button>
-                  
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t border-border"></span>
-                    </div>
-                    <div className="relative flex justify-center text-xs">
-                      <span className="bg-card px-2 text-muted-foreground">or</span>
-                    </div>
-                  </div>
-                  
-                  <form onSubmit={handleLogin}>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="donor-email">Email</Label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            id="donor-email" 
-                            type="email" 
-                            placeholder="name@example.com" 
-                            className="pl-10"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="donor-password">Password</Label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input 
-                            id="donor-password" 
-                            type="password" 
-                            placeholder="••••••••" 
-                            className="pl-10"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <Button type="submit" className="w-full" disabled={isLoading}>
-                        Login
-                        {isLoading && <span className="ml-2 animate-spin">◌</span>}
-                      </Button>
-                    </div>
-                  </form>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="hospital" className="space-y-4">
-                <form onSubmit={handleLogin}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="hospital-email">Hospital Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="hospital-email" 
-                          type="email" 
-                          placeholder="hospital@example.com" 
-                          className="pl-10"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="hospital-password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="hospital-password" 
-                          type="password" 
-                          placeholder="••••••••" 
-                          className="pl-10"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Building2 className="h-5 w-5 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Hospital Verification Required</span>
-                      </div>
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      Login
-                      {isLoading && <span className="ml-2 animate-spin">◌</span>}
-                    </Button>
-                  </div>
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="admin" className="space-y-4">
-                <form onSubmit={handleLogin}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="admin-email">Admin Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="admin-email" 
-                          type="email" 
-                          placeholder="admin@lifesourcenexus.com" 
-                          className="pl-10"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="admin-password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="admin-password" 
-                          type="password" 
-                          placeholder="••••••••" 
-                          className="pl-10"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <ShieldCheck className="h-5 w-5 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Secure Admin Access</span>
-                      </div>
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      Login
-                      {isLoading && <span className="ml-2 animate-spin">◌</span>}
-                    </Button>
-                  </div>
-                </form>
-              </TabsContent>
-            </CardContent>
-          </Tabs>
-          
-          <CardFooter className="flex flex-col space-y-2">
-            <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/register" className="font-medium text-primary underline-offset-4 hover:underline">
-                Register now
-              </Link>
-            </div>
-          </CardFooter>
-        </Card>
-        
-        <div className="text-center text-sm text-muted-foreground mt-4">
-          <p>&copy; 2025 Life Source Nexus. All rights reserved.</p>
-          <p className="mt-1 flex items-center justify-center gap-1">
-            <Database className="h-3 w-3" />
-            <span>Powered by blockchain technology</span>
+        <div className="bg-secondary/10 rounded-lg p-6 border border-border/50">
+          <h3 className="text-xl font-bold mb-4 text-center">All Available Pages</h3>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/">Home</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/register">Register</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/donor-registration">Donor Registration</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/donor-dashboard">Donor Dashboard</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/hospital-dashboard">Hospital Dashboard</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/admin-dashboard">Admin Dashboard</Link>
+            </Button>
+          </div>
+        </div>
+      </main>
+      
+      <footer className="border-t py-6">
+        <div className="container">
+          <p className="text-center text-sm text-muted-foreground">
+            &copy; 2025 Life Source Nexus. All rights reserved.
           </p>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
