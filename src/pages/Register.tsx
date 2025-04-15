@@ -17,32 +17,56 @@ import {
   Phone,
   MapPin,
   Wallet,
-  AlertCircle
+  AlertCircle,
+  Heart,
+  Dna,
+  Database,
+  Shield,
+  Globe
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const Register = () => {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState("donor");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    toast({
-      title: "Registration Successful",
-      description: `Registered as ${selectedRole}. Please check your email to verify your account.`,
-    });
-    
-    // Redirect to login after registration
-    setTimeout(() => navigate("/"), 2000);
+    setTimeout(() => {
+      toast({
+        title: "Registration Successful",
+        description: `Registered as ${selectedRole}. Please check your email to verify your account.`,
+      });
+      
+      setIsLoading(false);
+      // Redirect to login after registration
+      setTimeout(() => navigate("/"), 2000);
+    }, 1500);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
+          <div className="flex justify-center items-center mb-3">
+            <Heart className="h-10 w-10 text-primary" />
+            <Dna className="h-10 w-10 ml-1 text-primary" />
+          </div>
           <h1 className="text-4xl font-bold tracking-tight text-primary">Life Source Nexus</h1>
           <p className="mt-2 text-xl text-muted-foreground">Create Your Account</p>
+          <div className="flex justify-center mt-2 space-x-2">
+            <div className="flex items-center gap-1 bg-accent/50 text-accent-foreground rounded-full px-3 py-1 text-xs">
+              <Database className="h-3 w-3" />
+              <span>Blockchain Secured</span>
+            </div>
+            <div className="flex items-center gap-1 bg-accent/50 text-accent-foreground rounded-full px-3 py-1 text-xs">
+              <Shield className="h-3 w-3" />
+              <span>HIPAA Compliant</span>
+            </div>
+          </div>
         </div>
         
         <Card className="w-full backdrop-blur-sm bg-card/80 border-border/50 shadow-xl">
@@ -147,7 +171,20 @@ const Register = () => {
                       </Label>
                     </div>
                     
-                    <Button type="submit" className="w-full">Create Account</Button>
+                    <div className="rounded-lg border p-3 bg-secondary/20">
+                      <div className="flex items-center gap-2">
+                        <Database className="h-4 w-4 text-primary" />
+                        <h4 className="text-sm font-semibold">Blockchain Privacy Notice</h4>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Your sensitive medical data will be encrypted. Only organ metadata and matching information will be stored on the blockchain.
+                      </p>
+                    </div>
+                    
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      Create Account
+                      {isLoading && <span className="ml-2 animate-spin">◌</span>}
+                    </Button>
                   </div>
                 </form>
               </TabsContent>
@@ -200,9 +237,14 @@ const Register = () => {
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2 mt-2">
-                      <AlertCircle className="h-4 w-4 text-yellow-500" />
-                      <p className="text-xs text-muted-foreground">Hospital registrations require verification. You'll receive instructions via email.</p>
+                    <div className="rounded-lg border p-3 bg-secondary/20">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-primary" />
+                        <h4 className="text-sm font-semibold">Verification Required</h4>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Hospital registrations require verification. You'll receive instructions via email to complete the verification process.
+                      </p>
                     </div>
                     
                     <div className="flex items-center space-x-2">
@@ -212,7 +254,10 @@ const Register = () => {
                       </Label>
                     </div>
                     
-                    <Button type="submit" className="w-full">Submit Application</Button>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      Submit Application
+                      {isLoading && <span className="ml-2 animate-spin">◌</span>}
+                    </Button>
                   </div>
                 </form>
               </TabsContent>

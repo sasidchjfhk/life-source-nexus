@@ -16,7 +16,11 @@ import {
   Mail, 
   Lock, 
   Github, 
-  Wallet
+  Wallet,
+  Globe,
+  Database,
+  Heart,
+  Dna
 } from "lucide-react";
 
 const Index = () => {
@@ -24,52 +28,79 @@ const Index = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("donor");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     // Simulate login - in a real app, this would connect to Firebase or Web3
-    toast({
-      title: "Login Successful",
-      description: `Logged in as ${selectedRole}`,
-    });
-
-    // Redirect based on role
-    if (selectedRole === "donor") {
-      navigate("/donor-dashboard");
-    } else if (selectedRole === "hospital") {
-      navigate("/hospital-dashboard");
-    } else if (selectedRole === "admin") {
-      navigate("/admin-dashboard");
-    }
+    setTimeout(() => {
+      toast({
+        title: "Login Successful",
+        description: `Logged in as ${selectedRole}`,
+      });
+      
+      setIsLoading(false);
+      // Redirect based on role
+      if (selectedRole === "donor") {
+        navigate("/donor-dashboard");
+      } else if (selectedRole === "hospital") {
+        navigate("/hospital-dashboard");
+      } else if (selectedRole === "admin") {
+        navigate("/admin-dashboard");
+      }
+    }, 1500);
   };
 
   const handleWalletConnect = () => {
+    setIsLoading(true);
     // Simulate Web3 wallet connection
-    toast({
-      title: "Wallet Connected",
-      description: "MetaMask wallet connected successfully",
-    });
-    
-    setTimeout(() => navigate("/donor-dashboard"), 1500);
+    setTimeout(() => {
+      toast({
+        title: "Wallet Connected",
+        description: "MetaMask wallet connected successfully. Your blockchain identity is verified.",
+      });
+      
+      setIsLoading(false);
+      setTimeout(() => navigate("/donor-dashboard"), 1000);
+    }, 1500);
   };
 
   const handleGoogleLogin = () => {
+    setIsLoading(true);
     // Simulate Google OAuth
-    toast({
-      title: "Google Authentication",
-      description: "Logging in with Google...",
-    });
-    
-    setTimeout(() => navigate("/donor-dashboard"), 1500);
+    setTimeout(() => {
+      toast({
+        title: "Google Authentication",
+        description: "Logging in with Google...",
+      });
+      
+      setIsLoading(false);
+      setTimeout(() => navigate("/donor-dashboard"), 1000);
+    }, 1500);
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
+          <div className="flex justify-center items-center mb-3">
+            <Heart className="h-10 w-10 text-primary" />
+            <Dna className="h-10 w-10 ml-1 text-primary" />
+          </div>
           <h1 className="text-4xl font-bold tracking-tight text-primary">Life Source Nexus</h1>
           <p className="mt-2 text-xl text-muted-foreground">Blockchain-powered organ donation platform</p>
+          <div className="flex justify-center mt-2 space-x-2">
+            <div className="flex items-center gap-1 bg-accent/50 text-accent-foreground rounded-full px-3 py-1 text-xs">
+              <Database className="h-3 w-3" />
+              <span>Blockchain Secured</span>
+            </div>
+            <div className="flex items-center gap-1 bg-accent/50 text-accent-foreground rounded-full px-3 py-1 text-xs">
+              <Globe className="h-3 w-3" />
+              <span>Web3 Enabled</span>
+            </div>
+          </div>
         </div>
         
         <Card className="w-full backdrop-blur-sm bg-card/80 border-border/50 shadow-xl">
@@ -104,6 +135,7 @@ const Index = () => {
                     variant="outline" 
                     className="w-full flex items-center justify-center gap-2"
                     onClick={handleGoogleLogin}
+                    disabled={isLoading}
                   >
                     <svg className="h-4 w-4" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -112,15 +144,18 @@ const Index = () => {
                       <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                     </svg>
                     Continue with Google
+                    {isLoading && <span className="ml-2 animate-spin">◌</span>}
                   </Button>
                   
                   <Button 
                     variant="outline" 
                     className="w-full flex items-center justify-center gap-2"
                     onClick={handleWalletConnect}
+                    disabled={isLoading}
                   >
                     <Wallet className="h-4 w-4" />
-                    Connect Wallet
+                    Connect Web3 Wallet
+                    {isLoading && <span className="ml-2 animate-spin">◌</span>}
                   </Button>
                   
                   <div className="relative my-4">
@@ -164,7 +199,10 @@ const Index = () => {
                           />
                         </div>
                       </div>
-                      <Button type="submit" className="w-full">Login</Button>
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        Login
+                        {isLoading && <span className="ml-2 animate-spin">◌</span>}
+                      </Button>
                     </div>
                   </form>
                 </div>
@@ -209,7 +247,10 @@ const Index = () => {
                         <span className="text-sm text-muted-foreground">Hospital Verification Required</span>
                       </div>
                     </div>
-                    <Button type="submit" className="w-full">Login</Button>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      Login
+                      {isLoading && <span className="ml-2 animate-spin">◌</span>}
+                    </Button>
                   </div>
                 </form>
               </TabsContent>
@@ -253,7 +294,10 @@ const Index = () => {
                         <span className="text-sm text-muted-foreground">Secure Admin Access</span>
                       </div>
                     </div>
-                    <Button type="submit" className="w-full">Login</Button>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      Login
+                      {isLoading && <span className="ml-2 animate-spin">◌</span>}
+                    </Button>
                   </div>
                 </form>
               </TabsContent>
@@ -272,7 +316,10 @@ const Index = () => {
         
         <div className="text-center text-sm text-muted-foreground mt-4">
           <p>&copy; 2025 Life Source Nexus. All rights reserved.</p>
-          <p className="mt-1">Powered by blockchain technology</p>
+          <p className="mt-1 flex items-center justify-center gap-1">
+            <Database className="h-3 w-3" />
+            <span>Powered by blockchain technology</span>
+          </p>
         </div>
       </div>
     </div>
