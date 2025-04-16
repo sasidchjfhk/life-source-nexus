@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,9 +15,11 @@ import {
   MapPin, 
   MessageCircle, 
   Wallet,
-  Google,
+  Mail,
   LogOut
 } from "lucide-react";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
+import WalletConnectButton from "@/components/WalletConnectButton";
 
 const Index = () => {
   const [walletConnected, setWalletConnected] = useState(false);
@@ -93,10 +94,14 @@ const Index = () => {
                 </Button>
               </div>
             ) : (
-              <Button onClick={handleGoogleLogin} variant="outline" size="sm" className="gap-2">
-                <Google className="h-4 w-4" />
-                Sign in with Google
-              </Button>
+              <GoogleLoginButton 
+                onSuccess={(userData) => {
+                  setIsLoggedIn(true);
+                  setUserName(userData.name);
+                }}
+                variant="outline" 
+                size="sm"
+              />
             )}
             {walletConnected ? (
               <Button variant="outline" size="sm">
@@ -104,10 +109,18 @@ const Index = () => {
                 {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
               </Button>
             ) : (
-              <Button onClick={connectWallet} variant="outline" size="sm" className="gap-2">
-                <Wallet className="h-4 w-4" />
-                Connect Wallet
-              </Button>
+              <WalletConnectButton
+                onConnect={(address) => {
+                  setWalletConnected(true);
+                  setWalletAddress(address);
+                }}
+                onDisconnect={() => {
+                  setWalletConnected(false);
+                  setWalletAddress("");
+                }}
+                variant="outline"
+                size="sm"
+              />
             )}
           </div>
         </div>
