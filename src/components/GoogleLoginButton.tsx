@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Google } from "lucide-react";
+import { Mail } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 interface GoogleLoginButtonProps {
@@ -42,7 +42,7 @@ const GoogleLoginButton = ({
       size={size}
       className="gap-2"
     >
-      <Google className="h-4 w-4" />
+      <Mail className="h-4 w-4" />
       {buttonText}
     </Button>
   );

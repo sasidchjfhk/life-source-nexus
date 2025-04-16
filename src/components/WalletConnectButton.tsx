@@ -24,7 +24,12 @@ const WalletConnectButton = ({
 
   const connectWallet = async () => {
     try {
-      // Simulate MetaMask connection
+      // Simulate MetaMask connection with a loading state
+      toast({
+        title: "Connecting Wallet",
+        description: "Please wait while connecting to your wallet...",
+      });
+      
       setTimeout(() => {
         const mockAddress = "0x" + Math.random().toString(16).substr(2, 40);
         setAddress(mockAddress);
