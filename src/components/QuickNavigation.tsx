@@ -64,18 +64,21 @@ const QuickNavigation = () => {
             size="sm"
             variant="outline"
             onSuccess={handleGoogleLogin}
+            userType="donor"
           />
           <GoogleLoginButton 
             buttonText="Sign in as Hospital"
             size="sm"
             variant="outline"
             onSuccess={handleGoogleLogin}
+            userType="hospital"
           />
           <GoogleLoginButton 
             buttonText="Sign in as Admin"
             size="sm"
             variant="outline"
             onSuccess={handleGoogleLogin}
+            userType="admin"
           />
         </div>
       </div>

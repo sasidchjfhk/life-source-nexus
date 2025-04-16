@@ -15,6 +15,7 @@ interface HeaderProps {
   onLogin: (userData: { name: string; email: string }) => void;
   onWalletConnect: (address: string) => void;
   onWalletDisconnect: () => void;
+  userType?: "donor" | "hospital" | "admin";
 }
 
 const Header = ({
@@ -25,7 +26,8 @@ const Header = ({
   onLogout,
   onLogin,
   onWalletConnect,
-  onWalletDisconnect
+  onWalletDisconnect,
+  userType = "donor"
 }: HeaderProps) => {
   return (
     <header className="container py-6 border-b">
@@ -49,6 +51,7 @@ const Header = ({
               onSuccess={onLogin}
               variant="outline" 
               size="sm"
+              userType={userType}
             />
           )}
           {walletConnected ? (
