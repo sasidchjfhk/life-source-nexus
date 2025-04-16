@@ -10,52 +10,59 @@ import HospitalsTab from "@/components/tabs/HospitalsTab";
 import MapTab from "@/components/tabs/MapTab";
 import AIChatbot from "@/components/AIChatbot";
 import QuickNavigation from "@/components/QuickNavigation";
+import { useAuth } from "@/App";
+import { useWallet } from "@/App";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
-
-  // Simulate wallet connection
-  const connectWallet = async () => {
-    try {
-      // Simulate MetaMask connection
-      setTimeout(() => {
-        const mockAddress = "0x" + Math.random().toString(16).substr(2, 40);
-        setWalletAddress(mockAddress);
-        setWalletConnected(true);
-        toast({
-          title: "Wallet Connected",
-          description: `Connected to ${mockAddress.slice(0, 6)}...${mockAddress.slice(-4)}`,
-        });
-      }, 1000);
-    } catch (error) {
-      console.error("Error connecting wallet:", error);
-      toast({
-        title: "Connection Failed",
-        description: "Could not connect to wallet. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const { isConnected, address, connect, disconnect } = useWallet();
+  const { isLoggedIn, userName, login, logout, userRole } = useAuth();
+  const navigate = useNavigate();
+  
+  // Handle wallet connection
+  const connectWallet = (address: string) => {
+    connect(address);
+    toast({
+      title: "Wallet Connected",
+      description: `Connected to ${address.slice(0, 6)}...${address.slice(-4)}`,
+    });
   };
 
   // Handle Google login
   const handleGoogleLogin = (userData: { name: string; email: string }) => {
-    setIsLoggedIn(true);
-    setUserName(userData.name);
-    toast({
-      title: "Login Successful",
-      description: "You've been logged in successfully!",
-    });
+    if (userData && userData.name) {
+      // Determine user role based on email domain
+      let role: "donor" | "hospital" | "admin" = "donor";
+      
+      if (userData.email.includes("hospital") || userData.email.includes("medical")) {
+        role = "hospital";
+      } else if (userData.email.includes("admin")) {
+        role = "admin";
+      }
+      
+      login(userData.name, role);
+      
+      // Redirect to appropriate dashboard based on role
+      setTimeout(() => {
+        switch (role) {
+          case "donor":
+            navigate("/donor-dashboard");
+            break;
+          case "hospital":
+            navigate("/hospital-dashboard");
+            break;
+          case "admin":
+            navigate("/admin-dashboard");
+            break;
+        }
+      }, 1000);
+    }
   };
 
   // Handle logout
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserName("");
-    setWalletConnected(false);
-    setWalletAddress("");
+    logout();
+    disconnect();
     toast({
       title: "Logged Out",
       description: "You've been logged out successfully.",
@@ -67,18 +74,13 @@ const Index = () => {
       <Header 
         isLoggedIn={isLoggedIn}
         userName={userName}
-        walletConnected={walletConnected}
-        walletAddress={walletAddress}
+        walletConnected={isConnected}
+        walletAddress={address}
         onLogout={handleLogout}
         onLogin={handleGoogleLogin}
-        onWalletConnect={(address) => {
-          setWalletConnected(true);
-          setWalletAddress(address);
-        }}
-        onWalletDisconnect={() => {
-          setWalletConnected(false);
-          setWalletAddress("");
-        }}
+        onWalletConnect={connectWallet}
+        onWalletDisconnect={disconnect}
+        userType={userRole || "donor"}
       />
       
       <main className="flex-1 container py-8">
@@ -108,8 +110,14 @@ const Index = () => {
           {/* Map Tab */}
           <TabsContent value="map" className="mt-6">
             <MapTab 
-              walletConnected={walletConnected} 
-              onConnectWallet={connectWallet} 
+              walletConnected={isConnected} 
+              onConnectWallet={() => {
+                if (!isConnected) {
+                  // Generate a mock wallet address
+                  const mockAddress = "0x" + Math.random().toString(16).substr(2, 40);
+                  connectWallet(mockAddress);
+                }
+              }} 
             />
           </TabsContent>
         </Tabs>

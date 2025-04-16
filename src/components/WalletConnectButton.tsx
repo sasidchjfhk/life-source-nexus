@@ -21,9 +21,15 @@ const WalletConnectButton = ({
 }: WalletConnectButtonProps) => {
   const [connected, setConnected] = useState(false);
   const [address, setAddress] = useState("");
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const connectWallet = async () => {
     try {
+      // Prevent multiple clicks
+      if (isConnecting) return;
+      
+      setIsConnecting(true);
+      
       // Simulate MetaMask connection with a loading state
       toast({
         title: "Connecting Wallet",
@@ -34,6 +40,7 @@ const WalletConnectButton = ({
         const mockAddress = "0x" + Math.random().toString(16).substr(2, 40);
         setAddress(mockAddress);
         setConnected(true);
+        setIsConnecting(false);
         
         if (onConnect) {
           onConnect(mockAddress);
@@ -46,6 +53,7 @@ const WalletConnectButton = ({
       }, 1000);
     } catch (error) {
       console.error("Error connecting wallet:", error);
+      setIsConnecting(false);
       toast({
         title: "Connection Failed",
         description: "Could not connect to wallet. Please try again.",
@@ -88,9 +96,10 @@ const WalletConnectButton = ({
       variant={variant}
       size={size}
       className="gap-2"
+      disabled={isConnecting}
     >
       <Wallet className="h-4 w-4" />
-      {buttonText}
+      {isConnecting ? "Connecting..." : buttonText}
     </Button>
   );
 };

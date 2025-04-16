@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface TrackingPoint {
   id: string;
@@ -26,6 +27,7 @@ const OrganTrackingMap = ({
 }: OrganTrackingMapProps) => {
   const [loading, setLoading] = useState(false);
   const [trackingData, setTrackingData] = useState<TrackingPoint[]>([]);
+  const [connecting, setConnecting] = useState(false);
 
   // Simulate fetching tracking data when wallet is connected
   useEffect(() => {
@@ -61,9 +63,30 @@ const OrganTrackingMap = ({
         ];
         setTrackingData(mockData);
         setLoading(false);
+        
+        toast({
+          title: "Tracking Data Loaded",
+          description: "Blockchain verified organ tracking data has been loaded successfully.",
+        });
       }, 2000);
     }
   }, [isWalletConnected]);
+
+  const handleConnectWallet = () => {
+    setConnecting(true);
+    
+    // Show loading toast
+    toast({
+      title: "Connecting Wallet",
+      description: "Please wait while connecting your wallet...",
+    });
+    
+    // Simulate wallet connection delay
+    setTimeout(() => {
+      onConnectWallet();
+      setConnecting(false);
+    }, 1000);
+  };
 
   if (!isWalletConnected) {
     return (
@@ -76,8 +99,18 @@ const OrganTrackingMap = ({
                 Connect your wallet to view the organ tracking map with real-time GPS updates.
                 Blockchain verification ensures secure and transparent organ transportation.
               </p>
-              <Button onClick={onConnectWallet}>
-                Connect Wallet to View Map
+              <Button 
+                onClick={handleConnectWallet} 
+                disabled={connecting}
+              >
+                {connecting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  "Connect Wallet to View Map"
+                )}
               </Button>
             </div>
           </div>
