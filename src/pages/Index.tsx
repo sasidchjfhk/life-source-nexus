@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
 import Header from "@/components/Header";
@@ -13,12 +13,28 @@ import QuickNavigation from "@/components/QuickNavigation";
 import { useAuth } from "@/App";
 import { useWallet } from "@/App";
 import { useNavigate } from "react-router-dom";
+import OrganMatchingAI from "@/components/OrganMatchingAI";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+
+const featuredImages = [
+  "https://images.unsplash.com/photo-1582719471384-894fbb16e074?ixlib=rb-4.0.3&auto=format&fit=crop&w=870&q=80",
+  "https://images.unsplash.com/photo-1579154204871-29d7e79ed5a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=870&q=80",
+  "https://images.unsplash.com/photo-1631549916768-4119b4220ed4?ixlib=rb-4.0.3&auto=format&fit=crop&w=870&q=80",
+  "https://images.unsplash.com/photo-1582560474992-385ebb9b0213?ixlib=rb-4.0.3&auto=format&fit=crop&w=870&q=80"
+];
 
 const Index = () => {
   const { isConnected, address, connect, disconnect } = useWallet();
   const { isLoggedIn, userName, login, logout, userRole } = useAuth();
   const navigate = useNavigate();
   
+  // State for image slider
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   // Handle wallet connection
   const connectWallet = (address: string) => {
     connect(address);
@@ -69,6 +85,17 @@ const Index = () => {
     });
   };
 
+  // Auto-rotate images every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === featuredImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background to-primary/5">
       <Header 
@@ -82,6 +109,35 @@ const Index = () => {
         onWalletDisconnect={disconnect}
         userType={userRole || "donor"}
       />
+      
+      {/* Hero Banner */}
+      <div className="relative h-[300px] md:h-[400px] overflow-hidden">
+        <Carousel className="w-full h-full" opts={{ loop: true }}>
+          <CarouselContent>
+            {featuredImages.map((image, index) => (
+              <CarouselItem key={index} className="w-full h-full">
+                <div className="relative w-full h-full">
+                  <img 
+                    src={image} 
+                    alt={`Medical innovation ${index+1}`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-background/20 flex items-center">
+                    <div className="container">
+                      <h1 className="text-4xl md:text-5xl font-bold mb-4 max-w-md">
+                        Revolutionizing Organ Donation with Blockchain
+                      </h1>
+                      <p className="text-lg max-w-md">
+                        Secure, transparent, and efficient organ donation management powered by AI.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
       
       <main className="flex-1 container py-8">
         <Tabs defaultValue="overview" className="mb-8">
@@ -121,6 +177,12 @@ const Index = () => {
             />
           </TabsContent>
         </Tabs>
+        
+        {/* AI Organ Matching Section */}
+        <div className="my-12">
+          <h2 className="text-2xl font-bold mb-6 text-center">AI-Powered Organ Matching</h2>
+          <OrganMatchingAI />
+        </div>
         
         {/* AI Chatbot Section */}
         <AIChatbot />

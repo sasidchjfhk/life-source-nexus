@@ -30,35 +30,68 @@ const WalletConnectButton = ({
       
       setIsConnecting(true);
       
-      // Simulate MetaMask connection with a loading state
-      toast({
-        title: "Connecting Wallet",
-        description: "Please wait while connecting to your wallet...",
-      });
-      
-      setTimeout(() => {
-        const mockAddress = "0x" + Math.random().toString(16).substr(2, 40);
-        setAddress(mockAddress);
-        setConnected(true);
-        setIsConnecting(false);
-        
-        if (onConnect) {
-          onConnect(mockAddress);
-        }
-        
+      // Check if MetaMask is installed
+      if (typeof window !== 'undefined' && window.ethereum) {
         toast({
-          title: "Wallet Connected",
-          description: `Connected to ${mockAddress.slice(0, 6)}...${mockAddress.slice(-4)}`,
+          title: "Connecting to MetaMask",
+          description: "Please approve the connection request in MetaMask...",
         });
-      }, 1000);
+        
+        try {
+          // Request account access
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const account = accounts[0];
+          
+          setAddress(account);
+          setConnected(true);
+          
+          if (onConnect) {
+            onConnect(account);
+          }
+          
+          toast({
+            title: "Wallet Connected",
+            description: `Connected to ${account.slice(0, 6)}...${account.slice(-4)}`,
+          });
+        } catch (error) {
+          // User denied account access
+          toast({
+            title: "Connection Rejected",
+            description: "You rejected the connection request.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        // MetaMask not installed, fall back to mock connection
+        toast({
+          title: "MetaMask Not Detected",
+          description: "Using mock wallet connection instead...",
+        });
+        
+        setTimeout(() => {
+          const mockAddress = "0x" + Math.random().toString(16).substr(2, 40);
+          setAddress(mockAddress);
+          setConnected(true);
+          
+          if (onConnect) {
+            onConnect(mockAddress);
+          }
+          
+          toast({
+            title: "Mock Wallet Connected",
+            description: `Connected to ${mockAddress.slice(0, 6)}...${mockAddress.slice(-4)}`,
+          });
+        }, 1000);
+      }
     } catch (error) {
       console.error("Error connecting wallet:", error);
-      setIsConnecting(false);
       toast({
         title: "Connection Failed",
         description: "Could not connect to wallet. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsConnecting(false);
     }
   };
 
