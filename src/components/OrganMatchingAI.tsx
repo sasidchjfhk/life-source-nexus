@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, Sparkles, Dna } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { modelInfo } from "@/models/aiModels";
+import { modelInfo, getModelIcon } from "@/models/aiModels";
 import { Match } from "@/models/organMatchingData";
 import { getStoredData, findCompatibleMatches, saveMatch } from "@/utils/dataStorage";
 import ModelInfoBanner from "./organ-matching/ModelInfoBanner";
