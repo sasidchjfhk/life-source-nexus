@@ -1,13 +1,25 @@
 
 import { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
-import { AIModel, getModelIcon } from "@/models/aiModels";
+import { Sparkles, Bot } from "lucide-react";
+import { AIModel } from "@/models/aiModels";
 
 interface ModelInfoBannerProps {
   showModelInfo: boolean;
   activeModel: string;
   modelInfo: Record<string, AIModel>;
 }
+
+const getModelIcon = (modelKey: string): ReactNode => {
+  switch (modelKey) {
+    case 'claude':
+      return <Sparkles className="h-4 w-4" />;
+    case 'gpt':
+      return <Bot className="h-4 w-4" />;
+    default:
+      return <Sparkles className="h-4 w-4" />;
+  }
+};
 
 const ModelInfoBanner = ({ showModelInfo, activeModel, modelInfo }: ModelInfoBannerProps) => {
   if (!showModelInfo) {

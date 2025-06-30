@@ -1,5 +1,4 @@
 
-import { Sparkles, Bot } from "lucide-react";
 import { ReactNode } from "react";
 
 export interface AIModel {
@@ -24,14 +23,14 @@ export const modelInfo: Record<string, AIModel> = {
   }
 };
 
-// Helper function to get icons
-export const getModelIcon = (modelKey: string) => {
+// Helper function to get icon component names (not JSX)
+export const getModelIconName = (modelKey: string): string => {
   switch (modelKey) {
     case 'claude':
-      return <Sparkles className="h-4 w-4" />;
+      return 'Sparkles';
     case 'gpt':
-      return <Bot className="h-4 w-4" />;
+      return 'Bot';
     default:
-      return <Sparkles className="h-4 w-4" />;
+      return 'Sparkles';
   }
 };
