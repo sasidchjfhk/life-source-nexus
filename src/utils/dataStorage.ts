@@ -1,6 +1,6 @@
 
 import { UserProfile, RegistrationData, DonorProfile, PatientProfile, DoctorProfile, HospitalProfile } from '@/models/userData';
-import { Match } from '@/models/organMatchingData';
+import { Match, Donor, Recipient } from '@/models/organMatchingData';
 
 const STORAGE_KEY = 'lifesource_data';
 
@@ -146,8 +146,29 @@ export const findCompatibleMatches = (patientId: string): Match[] => {
 
   return compatibleDonors.map(donor => ({
     id: `M-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    donor: donor,
-    recipient: patient,
+    donor: {
+      id: donor.id,
+      name: donor.name,
+      age: donor.age,
+      bloodType: donor.bloodType,
+      organ: donor.registeredOrgans[0] || 'Unknown',
+      status: donor.isActive ? 'Available' : 'Inactive',
+      matchScore: calculateCompatibilityScore(donor, patient),
+      registrationDate: donor.registrationDate,
+      image: donor.profileImage || 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+    } as Donor,
+    recipient: {
+      id: patient.id,
+      name: patient.name,
+      age: patient.age,
+      bloodType: patient.bloodType,
+      organ: patient.requiredOrgan,
+      urgency: patient.urgencyLevel,
+      matchScore: calculateCompatibilityScore(donor, patient),
+      waitingTime: calculateWaitingTime(patient.waitingListDate),
+      location: patient.hospitalId,
+      image: patient.profileImage || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+    } as Recipient,
     compatibility: calculateCompatibilityScore(donor, patient),
     reasons: generateMatchReasons(donor, patient),
     predicted_success: getPredictedSuccess(donor, patient),
@@ -252,6 +273,17 @@ const getRecommendation = (donor: DonorProfile, patient: PatientProfile): string
   if (score >= 70) return "Recommended - good compatibility";
   if (score >= 60) return "Consider - moderate compatibility";
   return "Not recommended - seek alternative donors";
+};
+
+const calculateWaitingTime = (waitingListDate: string): string => {
+  const waitingDate = new Date(waitingListDate);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - waitingDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 30) return `${diffDays} days`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months`;
+  return `${Math.floor(diffDays / 365)} years`;
 };
 
 // Statistics and analytics

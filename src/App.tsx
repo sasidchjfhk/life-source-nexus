@@ -12,6 +12,7 @@ import DonorDashboard from "./pages/DonorDashboard";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import DonorDetails from "./pages/DonorDetails";
 import { useState, createContext, useContext } from "react";
 
 // Create auth context to manage authentication state
@@ -101,7 +102,8 @@ const App = () => {
                   <Route path="/donor-registration" element={<DonorRegistration />} />
                   <Route path="/donor-dashboard" element={<DonorDashboard />} />
                   <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
-                  <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/donor/:id" element={<DonorDetails />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

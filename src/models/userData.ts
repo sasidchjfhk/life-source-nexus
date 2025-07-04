@@ -85,6 +85,8 @@ export interface HospitalProfile extends BaseUser {
 
 export type UserProfile = DonorProfile | PatientProfile | DoctorProfile | HospitalProfile;
 
+import { Match } from './organMatchingData';
+
 export interface RegistrationData {
   donors: DonorProfile[];
   patients: PatientProfile[];
