@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/hooks/use-toast";
 import { getStoredData, getStatistics } from "@/utils/dataStorage";
 import { DonorProfile, HospitalProfile, DoctorProfile } from "@/models/userData";
 import { 
@@ -46,6 +47,29 @@ const AdminDashboard = () => {
     const updatedData = { ...currentData, hospitals: updatedHospitals };
     localStorage.setItem('lifesource_data', JSON.stringify(updatedData));
     setData(updatedData);
+    setStats(getStatistics());
+    
+    // Show success notification
+    toast({
+      title: "Hospital Approved",
+      description: "The hospital has been verified and can now access the platform.",
+    });
+  };
+
+  const rejectHospital = (hospitalId: string) => {
+    const currentData = getStoredData();
+    const updatedHospitals = currentData.hospitals.filter(h => h.id !== hospitalId);
+    const updatedData = { ...currentData, hospitals: updatedHospitals };
+    localStorage.setItem('lifesource_data', JSON.stringify(updatedData));
+    setData(updatedData);
+    setStats(getStatistics());
+    
+    // Show rejection notification
+    toast({
+      title: "Hospital Rejected",
+      description: "The hospital application has been rejected and removed.",
+      variant: "destructive"
+    });
   };
 
   return (
@@ -304,7 +328,11 @@ const AdminDashboard = () => {
                           <CheckCircle className="h-4 w-4 mr-1" />
                           Approve
                         </Button>
-                        <Button size="sm" variant="destructive">
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={() => rejectHospital(hospital.id)}
+                        >
                           <XCircle className="h-4 w-4 mr-1" />
                           Reject
                         </Button>

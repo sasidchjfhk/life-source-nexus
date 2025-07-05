@@ -8,6 +8,8 @@ import { Web3Provider } from "./contexts/Web3Context";
 import Index from "./pages/Index";
 import Register from "./pages/Register";
 import DonorRegistration from "./pages/DonorRegistration";
+import HospitalRegistration from "./pages/HospitalRegistration";
+import DoctorRegistration from "./pages/DoctorRegistration";
 import DonorDashboard from "./pages/DonorDashboard";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -100,6 +102,8 @@ const App = () => {
                   <Route path="/" element={<Index />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/donor-registration" element={<DonorRegistration />} />
+                  <Route path="/hospital-registration" element={<HospitalRegistration />} />
+                  <Route path="/doctor-registration" element={<DoctorRegistration />} />
                   <Route path="/donor-dashboard" element={<DonorDashboard />} />
                   <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
                   <Route path="/admin" element={<AdminDashboard />} />

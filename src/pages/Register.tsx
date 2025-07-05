@@ -23,7 +23,9 @@ import {
   Database,
   Shield,
   Globe,
-  ArrowRight
+  ArrowRight,
+  Users,
+  Award
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useWeb3 } from "@/contexts/Web3Context";
@@ -84,15 +86,19 @@ const Register = () => {
             </CardDescription>
           </CardHeader>
           
-          <Tabs defaultValue="donor" className="w-full" onValueChange={setSelectedRole}>
-            <TabsList className="grid grid-cols-2 mb-4 mx-4">
+            <Tabs defaultValue="donor" className="w-full" onValueChange={setSelectedRole}>
+            <TabsList className="grid grid-cols-3 mb-4 mx-4">
               <TabsTrigger value="donor" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                <span>Donor/Recipient</span>
+                <span>Donor</span>
               </TabsTrigger>
               <TabsTrigger value="hospital" className="flex items-center gap-2">
                 <Hospital className="h-4 w-4" />
                 <span>Hospital</span>
+              </TabsTrigger>
+              <TabsTrigger value="doctor" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span>Doctor</span>
               </TabsTrigger>
             </TabsList>
             
@@ -154,77 +160,118 @@ const Register = () => {
                 </div>
               </TabsContent>
               
-              <TabsContent value="hospital" className="space-y-4">
-                <form onSubmit={handleRegister}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="hospital-name">Hospital Name</Label>
-                      <Input id="hospital-name" placeholder="City Medical Center" required />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="hospital-email">Official Email</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="hospital-email" type="email" placeholder="hospital@example.com" className="pl-10" required />
+              <TabsContent value="doctor" className="space-y-4">
+                <div className="rounded-lg border p-6 bg-gradient-to-br from-green-500/10 to-transparent">
+                  <h3 className="text-lg font-semibold mb-2">Join as Medical Professional</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Register as a doctor to access our medical network, collaborate with hospitals, 
+                    and help facilitate life-saving organ transplants.
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Shield className="h-4 w-4 text-green-500" />
+                        <span>Verified</span>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="hospital-password">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="hospital-password" type="password" placeholder="••••••••" className="pl-10" required />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="hospital-license">License Number</Label>
-                      <div className="relative">
-                        <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="hospital-license" placeholder="License ID" className="pl-10" required />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="hospital-phone">Contact Number</Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="hospital-phone" type="tel" placeholder="+1 (555) 123-4567" className="pl-10" required />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="hospital-address">Address</Label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input id="hospital-address" placeholder="123 Medical Ave, City" className="pl-10" required />
-                      </div>
-                    </div>
-                    
-                    <div className="rounded-lg border p-3 bg-secondary/20">
-                      <div className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-primary" />
-                        <h4 className="text-sm font-semibold">Verification Required</h4>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Hospital registrations require verification. You'll receive instructions via email to complete the verification process.
+                      <p className="text-xs text-muted-foreground">
+                        Licensed medical professionals only
                       </p>
                     </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="hospital-terms" required />
-                      <Label htmlFor="hospital-terms" className="text-sm">
-                        I certify that I am authorized to register this healthcare facility
-                      </Label>
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Users className="h-4 w-4 text-blue-500" />
+                        <span>Network</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Connect with hospitals and colleagues
+                      </p>
                     </div>
-                    
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      Submit Application
-                      {isLoading && <span className="ml-2 animate-spin">◌</span>}
-                    </Button>
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Database className="h-4 w-4 text-purple-500" />
+                        <span>Records</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Access patient and transplant data
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Award className="h-4 w-4 text-amber-500" />
+                        <span>Recognition</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Earn NFT certifications
+                      </p>
+                    </div>
                   </div>
-                </form>
+                  
+                  <Button 
+                    className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                    onClick={() => navigate('/doctor-registration')}
+                  >
+                    Continue to Registration
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="hospital" className="space-y-4">
+                <div className="rounded-lg border p-6 bg-gradient-to-br from-blue-500/10 to-transparent">
+                  <h3 className="text-lg font-semibold mb-2">Register Your Hospital</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Join our network of trusted healthcare providers. Get verified and start 
+                    connecting with donors and medical professionals worldwide.
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Shield className="h-4 w-4 text-green-500" />
+                        <span>Verified</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Admin-verified healthcare facilities
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Heart className="h-4 w-4 text-red-500" />
+                        <span>Access</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Connect with organ donors
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Database className="h-4 w-4 text-purple-500" />
+                        <span>Platform</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Full platform integration
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-card p-3">
+                      <div className="flex items-center gap-1.5 text-sm font-medium mb-1">
+                        <Globe className="h-4 w-4 text-amber-500" />
+                        <span>Network</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Global healthcare network
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                    onClick={() => navigate('/hospital-registration')}
+                  >
+                    Continue to Registration
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </TabsContent>
             </CardContent>
           </Tabs>
