@@ -14,7 +14,7 @@ import { useAuth } from "@/App";
 import { useWallet } from "@/App";
 import { useNavigate } from "react-router-dom";
 import OrganMatchingAI from "@/components/OrganMatchingAI";
-import { getStatistics } from "@/utils/dataStorage";
+import { supabaseDataService } from "@/services/supabaseDataService";
 import {
   Carousel,
   CarouselContent,
@@ -51,8 +51,44 @@ const Index = () => {
 
   // Load statistics on component mount
   useEffect(() => {
-    const currentStats = getStatistics();
-    setStats(currentStats);
+    const loadStats = async () => {
+      try {
+        const [donors, recipients, matches] = await Promise.all([
+          supabaseDataService.getDonors(),
+          supabaseDataService.getRecipients(),
+          supabaseDataService.getMatches()
+        ]);
+        
+        setStats({
+          totalDonors: donors.length,
+          totalPatients: recipients.length,
+          totalMatches: matches.length,
+          successfulTransplants: matches.filter(m => m.status === 'completed').length,
+          activeMatches: matches.filter(m => m.status === 'pending').length,
+          criticalPatients: recipients.filter(r => r.urgency_level && r.urgency_level >= 8).length,
+          verifiedHospitals: 0, // Could be updated when hospital system is implemented
+          organTypes: donors.reduce((acc, donor) => {
+            acc[donor.organ] = (acc[donor.organ] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>)
+        });
+      } catch (error) {
+        console.error('Error loading statistics:', error);
+        // Fallback to empty stats
+        setStats({
+          totalDonors: 0,
+          totalPatients: 0,
+          totalMatches: 0,
+          successfulTransplants: 0,
+          activeMatches: 0,
+          criticalPatients: 0,
+          verifiedHospitals: 0,
+          organTypes: {}
+        });
+      }
+    };
+    
+    loadStats();
   }, []);
 
   // Handle wallet connection
