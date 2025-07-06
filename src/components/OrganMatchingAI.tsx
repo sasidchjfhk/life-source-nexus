@@ -7,7 +7,7 @@ import { Brain, Sparkles, Dna } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { modelInfo } from "@/models/aiModels";
 import { Match } from "@/models/organMatchingData";
-import { getStoredData, findCompatibleMatches, saveMatch } from "@/utils/dataStorage";
+import { supabaseDataService } from "@/services/supabaseDataService";
 import ModelInfoBanner from "./organ-matching/ModelInfoBanner";
 import ProcessingState from "./organ-matching/ProcessingState";
 import InitialState from "./organ-matching/InitialState";
@@ -24,17 +24,29 @@ const OrganMatchingAI = () => {
 
   // Load real data on component mount
   useEffect(() => {
-    const data = getStoredData();
-    setAvailablePatients(data.patients.length);
-    setAvailableDonors(data.donors.length);
+    const loadData = async () => {
+      try {
+        const [donors, recipients] = await Promise.all([
+          supabaseDataService.getDonors(),
+          supabaseDataService.getRecipients()
+        ]);
+        
+        setAvailableDonors(donors.length);
+        setAvailablePatients(recipients.length);
+        
+        // Auto-run matching if we have both donors and recipients
+        if (donors.length > 0 && recipients.length > 0 && matches.length === 0) {
+          runAIMatching();
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    };
     
-    // Auto-run matching if we have both patients and donors
-    if (data.patients.length > 0 && data.donors.length > 0 && matches.length === 0) {
-      runAIMatching();
-    }
+    loadData();
   }, []);
 
-  const runAIMatching = () => {
+  const runAIMatching = async () => {
     setIsProcessing(true);
     setProcessingProgress(0);
     setMatches([]);
@@ -48,33 +60,60 @@ const OrganMatchingAI = () => {
     }, 300);
     
     // After "processing" complete, show matches
-    setTimeout(() => {
+    setTimeout(async () => {
       clearInterval(interval);
       setProcessingProgress(100);
       
-      // Generate real matches using stored data
-      const data = getStoredData();
-      const allMatches: Match[] = [];
-      
-      // Find matches for each patient
-      data.patients.forEach(patient => {
-        const patientMatches = findCompatibleMatches(patient.id);
-        allMatches.push(...patientMatches);
-      });
-      
-      // Save matches to storage
-      allMatches.forEach(match => saveMatch(match));
-      
-      // Sort by compatibility score
-      const sortedMatches = allMatches.sort((a, b) => b.compatibility - a.compatibility);
-      
-      setMatches(sortedMatches.slice(0, 10)); // Show top 10 matches
-      setIsProcessing(false);
-      
-      toast({
-        title: "AI Matching Complete! 🎉",
-        description: `Found ${sortedMatches.length} potential matches using ${activeModel === "claude" ? "Claude 3.9 Opus" : "GPT-4o"} model`,
-      });
+      try {
+        // Fetch real data from Supabase
+        const [donors, recipients] = await Promise.all([
+          supabaseDataService.getDonors(),
+          supabaseDataService.getRecipients()
+        ]);
+
+        const allMatches: Match[] = [];
+        
+        // Find matches for each recipient
+        recipients.forEach(recipient => {
+          donors.forEach(donor => {
+            // Check basic compatibility
+            if (donor.organ === recipient.required_organ) {
+              const compatibility = supabaseDataService.calculateCompatibilityScore(donor, recipient);
+              
+              // Only include matches with reasonable compatibility
+              if (compatibility >= 50) {
+                const match = supabaseDataService.convertToMatch(donor, recipient, compatibility);
+                allMatches.push(match);
+              }
+            }
+          });
+        });
+
+        // Save matches to Supabase (with blockchain logging)
+        const savePromises = allMatches.map(match => 
+          supabaseDataService.saveMatch(match, match.donor.id, match.recipient.id)
+        );
+        await Promise.all(savePromises);
+        
+        // Sort by compatibility score
+        const sortedMatches = allMatches.sort((a, b) => b.compatibility - a.compatibility);
+        
+        setMatches(sortedMatches.slice(0, 10)); // Show top 10 matches
+        setIsProcessing(false);
+        
+        toast({
+          title: "AI Matching Complete! 🎉",
+          description: `Found ${sortedMatches.length} potential matches using ${activeModel === "claude" ? "Claude 3.9 Opus" : "GPT-4o"} model`,
+        });
+      } catch (error) {
+        console.error('Error during AI matching:', error);
+        setIsProcessing(false);
+        toast({
+          title: "Error",
+          description: "Failed to complete AI matching. Please try again.",
+          variant: "destructive"
+        });
+      }
     }, 4500);
   };
 

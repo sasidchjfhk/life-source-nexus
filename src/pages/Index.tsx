@@ -9,6 +9,7 @@ import HospitalsTab from "@/components/tabs/HospitalsTab";
 import MapTab from "@/components/tabs/MapTab";
 import AIChatbot from "@/components/AIChatbot";
 import QuickNavigation from "@/components/QuickNavigation";
+import BlockchainStatus from "@/components/BlockchainStatus";
 import { useAuth } from "@/App";
 import { useWallet } from "@/App";
 import { useNavigate } from "react-router-dom";
@@ -262,6 +263,14 @@ const Index = () => {
               AI-Powered Organ Matching
             </h2>
             <OrganMatchingAI />
+          </div>
+          
+          {/* Blockchain Integration Section */}
+          <div className="my-12">
+            <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+              Blockchain Integration
+            </h2>
+            <BlockchainStatus />
           </div>
           
           {/* AI Chatbot Section */}
