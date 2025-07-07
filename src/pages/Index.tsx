@@ -74,7 +74,7 @@ const Index = () => {
         });
       } catch (error) {
         console.error('Error loading statistics:', error);
-        // Fallback to empty stats
+        // Fallback to empty stats but keep trying
         setStats({
           totalDonors: 0,
           totalPatients: 0,
@@ -89,6 +89,10 @@ const Index = () => {
     };
     
     loadStats();
+    
+    // Refresh stats every 30 seconds
+    const interval = setInterval(loadStats, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   // Handle wallet connection

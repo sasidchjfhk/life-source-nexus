@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { getStoredData, getStatistics } from "@/utils/dataStorage";
+import { supabaseDataService } from "@/services/supabaseDataService";
 import { DonorProfile, HospitalProfile, DoctorProfile } from "@/models/userData";
 import { 
   Users, 
@@ -23,54 +23,70 @@ import {
 } from "lucide-react";
 
 const AdminDashboard = () => {
-  const [data, setData] = useState(getStoredData());
-  const [stats, setStats] = useState(getStatistics());
+  const [donors, setDonors] = useState<any[]>([]);
+  const [recipients, setRecipients] = useState<any[]>([]);
+  const [matches, setMatches] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    totalDonors: 0,
+    totalPatients: 0,
+    totalMatches: 0,
+    successfulTransplants: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [donorsData, recipientsData, matchesData] = await Promise.all([
+        supabaseDataService.getDonors(),
+        supabaseDataService.getRecipients(),
+        supabaseDataService.getMatches()
+      ]);
+
+      setDonors(donorsData);
+      setRecipients(recipientsData);
+      setMatches(matchesData);
+      
+      setStats({
+        totalDonors: donorsData.length,
+        totalPatients: recipientsData.length,
+        totalMatches: matchesData.length,
+        successfulTransplants: matchesData.filter(m => m.status === 'completed').length
+      });
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast({
+        title: "Error Loading Data",
+        description: "Failed to load data from database. Please refresh the page.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setData(getStoredData());
-      setStats(getStatistics());
-    }, 5000); // Refresh every 5 seconds for live updates
-
+    loadData();
+    
+    // Refresh data every 30 seconds
+    const interval = setInterval(loadData, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  const pendingHospitals = data.hospitals.filter(h => !h.isVerified);
-  const verifiedHospitals = data.hospitals.filter(h => h.isVerified);
-  const activeDonors = data.donors.filter(d => d.isActive);
+  const activeDonors = donors.filter(d => d.availability);
 
-  const approveHospital = (hospitalId: string) => {
-    const currentData = getStoredData();
-    const updatedHospitals = currentData.hospitals.map(h => 
-      h.id === hospitalId ? { ...h, isVerified: true } : h
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
+        <div className="container mx-auto">
+          <div className="text-center py-20">
+            <h2 className="text-2xl font-bold mb-4">Loading Admin Dashboard...</h2>
+            <p className="text-muted-foreground">Fetching live data from Supabase</p>
+          </div>
+        </div>
+      </div>
     );
-    const updatedData = { ...currentData, hospitals: updatedHospitals };
-    localStorage.setItem('lifesource_data', JSON.stringify(updatedData));
-    setData(updatedData);
-    setStats(getStatistics());
-    
-    // Show success notification
-    toast({
-      title: "Hospital Approved",
-      description: "The hospital has been verified and can now access the platform.",
-    });
-  };
-
-  const rejectHospital = (hospitalId: string) => {
-    const currentData = getStoredData();
-    const updatedHospitals = currentData.hospitals.filter(h => h.id !== hospitalId);
-    const updatedData = { ...currentData, hospitals: updatedHospitals };
-    localStorage.setItem('lifesource_data', JSON.stringify(updatedData));
-    setData(updatedData);
-    setStats(getStatistics());
-    
-    // Show rejection notification
-    toast({
-      title: "Hospital Rejected",
-      description: "The hospital application has been rejected and removed.",
-      variant: "destructive"
-    });
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4">
@@ -97,13 +113,13 @@ const AdminDashboard = () => {
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Hospitals</CardTitle>
+              <CardTitle className="text-sm font-medium">Recipients</CardTitle>
               <Hospital className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{data.hospitals.length}</div>
+              <div className="text-2xl font-bold">{recipients.length}</div>
               <p className="text-xs text-muted-foreground">
-                {pendingHospitals.length} pending approval
+                {recipients.filter(r => r.urgency_level >= 8).length} critical
               </p>
             </CardContent>
           </Card>
@@ -114,9 +130,9 @@ const AdminDashboard = () => {
               <Activity className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalMatches}</div>
+              <div className="text-2xl font-bold">{matches.length}</div>
               <p className="text-xs text-muted-foreground">
-                {stats.activeMatches} active matches
+                {matches.filter(m => m.status === 'pending').length} pending
               </p>
             </CardContent>
           </Card>
@@ -136,18 +152,10 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="donors" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="donors">Donors</TabsTrigger>
-            <TabsTrigger value="hospitals">Hospitals</TabsTrigger>
-            <TabsTrigger value="doctors">Doctors</TabsTrigger>
-            <TabsTrigger value="approvals">
-              Approvals
-              {pendingHospitals.length > 0 && (
-                <Badge variant="destructive" className="ml-2">
-                  {pendingHospitals.length}
-                </Badge>
-              )}
-            </TabsTrigger>
+            <TabsTrigger value="recipients">Recipients</TabsTrigger>
+            <TabsTrigger value="matches">Matches</TabsTrigger>
           </TabsList>
           
           <TabsContent value="donors" className="space-y-4">
@@ -160,42 +168,37 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {data.donors.map((donor: DonorProfile) => (
+                  {donors.map((donor) => (
                     <div key={donor.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-4">
                         <Avatar>
-                          <AvatarImage src={donor.profileImage} />
+                          <AvatarImage src="" />
                           <AvatarFallback>
-                            {donor.name.split(' ').map(n => n[0]).join('')}
+                            {donor.name.split(' ').map((n: string) => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">{donor.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {donor.age} years • {donor.bloodType} • {donor.registeredOrgans.join(', ')}
+                            {donor.blood_type} • {donor.organ} • {donor.location || 'Location not specified'}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge variant={donor.isActive ? "default" : "secondary"}>
-                              {donor.isActive ? "Active" : "Inactive"}
+                            <Badge variant={donor.availability ? "default" : "secondary"}>
+                              {donor.availability ? "Available" : "Unavailable"}
                             </Badge>
-                            {donor.nftBadges.length > 0 && (
-                              <Badge variant="outline" className="bg-purple-50">
-                                <Award className="h-3 w-3 mr-1" />
-                                {donor.nftBadges.length} NFT Badges
-                              </Badge>
-                            )}
+                            <Badge variant="outline">
+                              Registered: {new Date(donor.created_at).toLocaleDateString()}
+                            </Badge>
                           </div>
                         </div>
                       </div>
-                      <Button asChild size="sm">
-                        <Link to={`/donor/${donor.id}`}>
-                          <Eye className="h-4 w-4 mr-1" />
-                          View Details
-                        </Link>
-                      </Button>
+                      <div className="text-right">
+                        <p className="text-sm text-muted-foreground">ID</p>
+                        <p className="font-mono text-xs">{donor.id.slice(0, 8)}...</p>
+                      </div>
                     </div>
                   ))}
-                  {data.donors.length === 0 && (
+                  {donors.length === 0 && (
                     <p className="text-center text-muted-foreground py-8">
                       No donors registered yet
                     </p>
@@ -205,143 +208,106 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="hospitals" className="space-y-4">
+          <TabsContent value="recipients" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Hospital Network</CardTitle>
+                <CardTitle>Recipients</CardTitle>
                 <CardDescription>
-                  Verified healthcare facilities in the network
+                  Patients waiting for organ transplants
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {verifiedHospitals.map((hospital: HospitalProfile) => (
-                    <div key={hospital.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <Hospital className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{hospital.hospitalName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {hospital.hospitalType} • {hospital.totalTransplants} transplants
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="default">
-                              <Shield className="h-3 w-3 mr-1" />
-                              Verified
-                            </Badge>
-                            <Badge variant="outline">
-                              Success Rate: {hospital.successRate}%
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Rating</p>
-                        <p className="font-bold text-lg">{hospital.rating}/5</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="doctors" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Medical Staff</CardTitle>
-                <CardDescription>
-                  Registered doctors and medical professionals
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {data.doctors.map((doctor: DoctorProfile) => (
-                    <div key={doctor.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  {recipients.map((recipient) => (
+                    <div key={recipient.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-4">
                         <Avatar>
-                          <AvatarImage src={doctor.profileImage} />
+                          <AvatarImage src="" />
                           <AvatarFallback>
-                            {doctor.name.split(' ').map(n => n[0]).join('')}
+                            {recipient.name.split(' ').map((n: string) => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">Dr. {doctor.name}</p>
+                          <p className="font-medium">{recipient.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {doctor.specialization.join(', ')} • {doctor.yearsOfExperience} years exp.
+                            {recipient.blood_type} • Needs {recipient.required_organ} • {recipient.location || 'Location not specified'}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline">
-                              License: {doctor.licenseNumber}
+                            <Badge variant={recipient.urgency_level >= 8 ? "destructive" : recipient.urgency_level >= 6 ? "default" : "secondary"}>
+                              Urgency: {recipient.urgency_level}/10
                             </Badge>
-                            <Badge variant="secondary">
-                              {doctor.patientsCount} patients
+                            <Badge variant="outline">
+                              Registered: {new Date(recipient.created_at).toLocaleDateString()}
                             </Badge>
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Rating</p>
-                        <p className="font-bold text-lg">{doctor.rating}/5</p>
+                        <p className="text-sm text-muted-foreground">ID</p>
+                        <p className="font-mono text-xs">{recipient.id.slice(0, 8)}...</p>
                       </div>
                     </div>
                   ))}
+                  {recipients.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">
+                      No recipients registered yet
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
           
-          <TabsContent value="approvals" className="space-y-4">
+          <TabsContent value="matches" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Pending Approvals</CardTitle>
+                <CardTitle>Organ Matches</CardTitle>
                 <CardDescription>
-                  Hospital registrations awaiting verification
+                  All organ matching records with blockchain verification
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {pendingHospitals.map((hospital: HospitalProfile) => (
-                    <div key={hospital.id} className="flex items-center justify-between p-4 border rounded-lg bg-yellow-50 border-yellow-200">
+                  {matches.map((match) => (
+                    <div key={match.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-4">
-                        <div className="p-2 bg-yellow-100 rounded-lg">
-                          <Clock className="h-6 w-6 text-yellow-600" />
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          <Activity className="h-6 w-6 text-green-600" />
                         </div>
                         <div>
-                          <p className="font-medium">{hospital.hospitalName}</p>
+                          <p className="font-medium">Match Score: {match.match_score}%</p>
                           <p className="text-sm text-muted-foreground">
-                            {hospital.hospitalType} • Registered: {new Date(hospital.registrationDate).toLocaleDateString()}
+                            Status: {match.status} • {new Date(match.matched_at).toLocaleDateString()}
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            {hospital.email} • {hospital.phone}
-                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant={match.status === 'completed' ? "default" : match.status === 'pending' ? "secondary" : "destructive"}>
+                              {match.status}
+                            </Badge>
+                            {match.blockchain_tx_hash && (
+                              <Badge variant="outline">
+                                <Shield className="h-3 w-3 mr-1" />
+                                Blockchain Verified
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          onClick={() => approveHospital(hospital.id)}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Approve
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive"
-                          onClick={() => rejectHospital(hospital.id)}
-                        >
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Reject
-                        </Button>
+                      <div className="text-right">
+                        <p className="text-sm text-muted-foreground">Donor → Recipient</p>
+                        <p className="font-mono text-xs">
+                          {match.donor_id?.slice(0, 8)}... → {match.recipient_id?.slice(0, 8)}...
+                        </p>
+                        {match.blockchain_tx_hash && (
+                          <p className="font-mono text-xs text-green-600">
+                            TX: {match.blockchain_tx_hash.slice(0, 10)}...
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}
-                  {pendingHospitals.length === 0 && (
+                  {matches.length === 0 && (
                     <p className="text-center text-muted-foreground py-8">
-                      No pending approvals
+                      No matches found yet
                     </p>
                   )}
                 </div>

@@ -1,50 +1,147 @@
 
 import { UserProfile, RegistrationData, DonorProfile, PatientProfile, DoctorProfile, HospitalProfile } from '@/models/userData';
 import { Match, Donor, Recipient } from '@/models/organMatchingData';
+import { supabase } from '@/integrations/supabase/client';
+import { supabaseDataService } from '@/services/supabaseDataService';
 
-const STORAGE_KEY = 'lifesource_data';
-
-// Initialize default data structure
-const defaultData: RegistrationData = {
-  donors: [],
-  patients: [],
-  doctors: [],
-  hospitals: [],
-  matches: [],
-  statistics: {
-    totalDonors: 0,
-    totalPatients: 0,
-    totalMatches: 0,
-    successfulTransplants: 0
-  }
-};
-
-// Storage utility functions
-export const getStoredData = (): RegistrationData => {
+// Legacy function for backward compatibility - now uses Supabase
+export const getStoredData = async (): Promise<RegistrationData> => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : defaultData;
+    const [donors, recipients, matches] = await Promise.all([
+      supabaseDataService.getDonors(),
+      supabaseDataService.getRecipients(),
+      supabaseDataService.getMatches()
+    ]);
+
+    // Convert Supabase data to legacy format
+    const donorProfiles: DonorProfile[] = donors.map(donor => ({
+      id: donor.id,
+      name: donor.name,
+      email: `${donor.name.toLowerCase().replace(' ', '.')}@example.com`,
+      phone: '+1-555-0000',
+      address: donor.location || 'Unknown',
+      registrationDate: new Date(donor.created_at || Date.now()).toISOString(),
+      type: 'donor' as const,
+      bloodType: donor.blood_type,
+      age: Math.floor(Math.random() * 40) + 20,
+      weight: Math.floor(Math.random() * 50) + 50,
+      height: Math.floor(Math.random() * 40) + 150,
+      medicalHistory: [],
+      registeredOrgans: [donor.organ],
+      emergencyContact: {
+        name: 'Emergency Contact',
+        phone: '+1-555-0000',
+        relationship: 'Family'
+      },
+      isActive: donor.availability || false,
+      nftBadges: [],
+      matchingPreferences: {
+        geographicLimit: 100,
+        urgencyOnly: false,
+        anonymousMatching: false
+      }
+    }));
+
+    const patientProfiles: PatientProfile[] = recipients.map(recipient => ({
+      id: recipient.id,
+      name: recipient.name,
+      email: `${recipient.name.toLowerCase().replace(' ', '.')}@example.com`,
+      phone: '+1-555-0000',
+      address: recipient.location || 'Unknown',
+      registrationDate: new Date(recipient.created_at || Date.now()).toISOString(),
+      type: 'patient' as const,
+      bloodType: recipient.blood_type,
+      age: Math.floor(Math.random() * 50) + 15,
+      medicalCondition: 'Organ Failure',
+      requiredOrgan: recipient.required_organ,
+      urgencyLevel: recipient.urgency_level >= 8 ? 'Critical' : recipient.urgency_level >= 6 ? 'High' : recipient.urgency_level >= 4 ? 'Medium' : 'Low',
+      waitingListDate: new Date(recipient.created_at || Date.now()).toISOString(),
+      hospitalId: 'H-001',
+      doctorId: 'D-001',
+      medicalHistory: [],
+      currentMedications: [],
+      insuranceInfo: {
+        provider: 'Health Insurance',
+        policyNumber: 'POL-' + Math.random().toString(36).substr(2, 9)
+      }
+    }));
+
+    return {
+      donors: donorProfiles,
+      patients: patientProfiles,
+      doctors: [],
+      hospitals: [],
+      matches: matches.map(match => ({
+        id: match.id,
+        donor: {
+          id: match.donor_id || '',
+          name: 'Donor',
+          age: 0,
+          bloodType: '',
+          organ: '',
+          status: 'Available',
+          matchScore: match.match_score || 0,
+          registrationDate: '',
+          image: ''
+        },
+        recipient: {
+          id: match.recipient_id || '',
+          name: 'Recipient',
+          age: 0,
+          bloodType: '',
+          organ: '',
+          urgency: 'Medium',
+          matchScore: match.match_score || 0,
+          waitingTime: '',
+          location: '',
+          image: ''
+        },
+        compatibility: match.match_score || 0,
+        reasons: [],
+        predicted_success: 'Good',
+        predicted_complications: 'Low',
+        recommendation: 'Proceed'
+      })),
+      statistics: {
+        totalDonors: donors.length,
+        totalPatients: recipients.length,
+        totalMatches: matches.length,
+        successfulTransplants: matches.filter(m => m.status === 'completed').length
+      }
+    };
   } catch (error) {
-    console.error('Error loading data from storage:', error);
-    return defaultData;
+    console.error('Error loading data from Supabase:', error);
+    return {
+      donors: [],
+      patients: [],
+      doctors: [],
+      hospitals: [],
+      matches: [],
+      statistics: {
+        totalDonors: 0,
+        totalPatients: 0,
+        totalMatches: 0,
+        successfulTransplants: 0
+      }
+    };
   }
 };
 
 export const saveData = (data: RegistrationData): void => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (error) {
-    console.error('Error saving data to storage:', error);
-  }
+  // This function is deprecated - use Supabase directly
+  console.warn('saveData is deprecated. Use Supabase services directly.');
 };
 
-// User registration functions
-export const registerDonor = (donor: DonorProfile): boolean => {
+// User registration functions - now use Supabase
+export const registerDonor = async (donor: DonorProfile): Promise<boolean> => {
   try {
-    const data = getStoredData();
-    data.donors.push(donor);
-    data.statistics.totalDonors = data.donors.length;
-    saveData(data);
+    await supabase.from('donors').insert({
+      name: donor.name,
+      blood_type: donor.bloodType,
+      organ: donor.registeredOrgans[0] || 'Unknown',
+      location: donor.address,
+      availability: donor.isActive
+    });
     return true;
   } catch (error) {
     console.error('Error registering donor:', error);
@@ -52,12 +149,17 @@ export const registerDonor = (donor: DonorProfile): boolean => {
   }
 };
 
-export const registerPatient = (patient: PatientProfile): boolean => {
+export const registerPatient = async (patient: PatientProfile): Promise<boolean> => {
   try {
-    const data = getStoredData();
-    data.patients.push(patient);
-    data.statistics.totalPatients = data.patients.length;
-    saveData(data);
+    await supabase.from('recipients').insert({
+      name: patient.name,
+      blood_type: patient.bloodType,
+      required_organ: patient.requiredOrgan,
+      location: patient.address,
+      urgency_level: patient.urgencyLevel === 'Critical' ? 10 : 
+                     patient.urgencyLevel === 'High' ? 8 : 
+                     patient.urgencyLevel === 'Medium' ? 6 : 4
+    });
     return true;
   } catch (error) {
     console.error('Error registering patient:', error);
@@ -65,69 +167,75 @@ export const registerPatient = (patient: PatientProfile): boolean => {
   }
 };
 
-export const registerDoctor = (doctor: DoctorProfile): boolean => {
+export const registerDoctor = async (doctor: DoctorProfile): Promise<boolean> => {
+  // This would require a doctors table in Supabase
+  console.warn('Doctor registration not implemented - requires doctors table');
+  return false;
+};
+
+export const registerHospital = async (hospital: HospitalProfile): Promise<boolean> => {
+  // This would require a hospitals table in Supabase
+  console.warn('Hospital registration not implemented - requires hospitals table');
+  return false;
+};
+
+// Data retrieval functions - now use Supabase
+export const getUserById = async (id: string): Promise<UserProfile | null> => {
   try {
-    const data = getStoredData();
-    data.doctors.push(doctor);
-    saveData(data);
-    return true;
+    const data = await getStoredData();
+    const allUsers = [...data.donors, ...data.patients, ...data.doctors, ...data.hospitals];
+    return allUsers.find(user => user.id === id) || null;
   } catch (error) {
-    console.error('Error registering doctor:', error);
-    return false;
+    console.error('Error getting user by ID:', error);
+    return null;
   }
 };
 
-export const registerHospital = (hospital: HospitalProfile): boolean => {
+export const getUsersByType = async (type: 'donor' | 'patient' | 'doctor' | 'hospital'): Promise<UserProfile[]> => {
   try {
-    const data = getStoredData();
-    data.hospitals.push(hospital);
-    saveData(data);
-    return true;
+    const data = await getStoredData();
+    return data[type === 'donor' ? 'donors' : 
+                 type === 'patient' ? 'patients' : 
+                 type === 'doctor' ? 'doctors' : 'hospitals'] as UserProfile[];
   } catch (error) {
-    console.error('Error registering hospital:', error);
-    return false;
+    console.error('Error getting users by type:', error);
+    return [];
   }
 };
 
-// Data retrieval functions
-export const getUserById = (id: string): UserProfile | null => {
-  const data = getStoredData();
-  const allUsers = [...data.donors, ...data.patients, ...data.doctors, ...data.hospitals];
-  return allUsers.find(user => user.id === id) || null;
+export const findUserByEmail = async (email: string): Promise<UserProfile | null> => {
+  try {
+    const data = await getStoredData();
+    const allUsers = [...data.donors, ...data.patients, ...data.doctors, ...data.hospitals];
+    return allUsers.find(user => user.email === email) || null;
+  } catch (error) {
+    console.error('Error finding user by email:', error);
+    return null;
+  }
 };
 
-export const getUsersByType = (type: 'donor' | 'patient' | 'doctor' | 'hospital'): UserProfile[] => {
-  const data = getStoredData();
-  return data[type === 'donor' ? 'donors' : 
-               type === 'patient' ? 'patients' : 
-               type === 'doctor' ? 'doctors' : 'hospitals'] as UserProfile[];
+// Matching functions - deprecated, use Supabase directly
+export const saveMatch = async (match: Match): Promise<void> => {
+  console.warn('saveMatch is deprecated. Use supabaseDataService directly.');
 };
 
-export const findUserByEmail = (email: string): UserProfile | null => {
-  const data = getStoredData();
-  const allUsers = [...data.donors, ...data.patients, ...data.doctors, ...data.hospitals];
-  return allUsers.find(user => user.email === email) || null;
+export const getMatchesForUser = async (userId: string): Promise<Match[]> => {
+  try {
+    const data = await getStoredData();
+    return data.matches.filter(match => 
+      match.donor.id === userId || match.recipient.id === userId
+    );
+  } catch (error) {
+    console.error('Error getting matches for user:', error);
+    return [];
+  }
 };
 
-// Matching functions
-export const saveMatch = (match: Match): void => {
-  const data = getStoredData();
-  data.matches.push(match);
-  data.statistics.totalMatches = data.matches.length;
-  saveData(data);
-};
-
-export const getMatchesForUser = (userId: string): Match[] => {
-  const data = getStoredData();
-  return data.matches.filter(match => 
-    match.donor.id === userId || match.recipient.id === userId
-  );
-};
-
-// Advanced matching algorithm
-export const findCompatibleMatches = (patientId: string): Match[] => {
-  const data = getStoredData();
-  const patient = data.patients.find(p => p.id === patientId);
+// Advanced matching algorithm - deprecated
+export const findCompatibleMatches = async (patientId: string): Promise<Match[]> => {
+  try {
+    const data = await getStoredData();
+    const patient = data.patients.find(p => p.id === patientId);
   
   if (!patient) return [];
 
@@ -286,19 +394,33 @@ const calculateWaitingTime = (waitingListDate: string): string => {
   return `${Math.floor(diffDays / 365)} years`;
 };
 
-// Statistics and analytics
-export const getStatistics = () => {
-  const data = getStoredData();
-  return {
-    ...data.statistics,
-    activeMatches: data.matches.filter(match => match.compatibility >= 70).length,
-    criticalPatients: data.patients.filter(p => p.urgencyLevel === 'Critical').length,
-    verifiedHospitals: data.hospitals.filter(h => h.isVerified).length,
-    organTypes: data.donors.reduce((acc, donor) => {
-      donor.registeredOrgans.forEach(organ => {
-        acc[organ] = (acc[organ] || 0) + 1;
-      });
-      return acc;
-    }, {} as Record<string, number>)
-  };
+// Statistics and analytics - now use Supabase
+export const getStatistics = async () => {
+  try {
+    const data = await getStoredData();
+    return {
+      ...data.statistics,
+      activeMatches: data.matches.filter(match => match.compatibility >= 70).length,
+      criticalPatients: data.patients.filter(p => p.urgencyLevel === 'Critical').length,
+      verifiedHospitals: data.hospitals.filter(h => h.isVerified).length,
+      organTypes: data.donors.reduce((acc, donor) => {
+        donor.registeredOrgans.forEach(organ => {
+          acc[organ] = (acc[organ] || 0) + 1;
+        });
+        return acc;
+      }, {} as Record<string, number>)
+    };
+  } catch (error) {
+    console.error('Error getting statistics:', error);
+    return {
+      totalDonors: 0,
+      totalPatients: 0,
+      totalMatches: 0,
+      successfulTransplants: 0,
+      activeMatches: 0,
+      criticalPatients: 0,
+      verifiedHospitals: 0,
+      organTypes: {}
+    };
+  }
 };

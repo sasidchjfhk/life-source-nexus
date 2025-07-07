@@ -21,7 +21,28 @@ import {
 
 const DonorDetails = () => {
   const { id } = useParams();
-  const donor = getUserById(id || '') as DonorProfile;
+  const [donor, setDonor] = useState<DonorProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDonor = async () => {
+      if (id) {
+        try {
+          const result = await getUserById(id) as DonorProfile;
+          setDonor(result);
+        } catch (error) {
+          console.error('Error loading donor:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    loadDonor();
+  }, [id]);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   if (!donor || donor.type !== 'donor') {
     return (
