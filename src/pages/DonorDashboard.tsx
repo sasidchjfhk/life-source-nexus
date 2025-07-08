@@ -8,6 +8,10 @@ import { Progress } from "@/components/ui/progress";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import RealTimeDashboard from "@/components/RealTimeDashboard";
+import InteractiveMap from "@/components/InteractiveMap";
+import SmartNotifications from "@/components/SmartNotifications";
+import SecureChatSystem from "@/components/SecureChatSystem";
 import { 
   Dna, 
   Heart, 
@@ -94,7 +98,17 @@ const DonorDashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container py-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <main className="container py-6">
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="realtime">Live Data</TabsTrigger>
+            <TabsTrigger value="map">Map</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="chat">Secure Chat</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="dashboard" className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Profile Card */}
         <Card className="md:col-span-2 lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -320,6 +334,24 @@ const DonorDashboard = () => {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+          
+          <TabsContent value="realtime">
+            <RealTimeDashboard />
+          </TabsContent>
+          
+          <TabsContent value="map">
+            <InteractiveMap />
+          </TabsContent>
+          
+          <TabsContent value="notifications">
+            <SmartNotifications />
+          </TabsContent>
+          
+          <TabsContent value="chat">
+            <SecureChatSystem />
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* AI Chatbot */}
