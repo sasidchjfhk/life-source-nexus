@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,10 +30,20 @@ const certifications = [
 const DoctorRegistrationForm = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [availableHospitals, setAvailableHospitals] = useState(() => {
-    const data = getStoredData();
-    return data.hospitals.filter(h => h.isVerified);
-  });
+  const [availableHospitals, setAvailableHospitals] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadHospitals = async () => {
+      try {
+        const data = await getStoredData();
+        setAvailableHospitals(data.hospitals.filter(h => h.isVerified));
+      } catch (error) {
+        console.error('Error loading hospitals:', error);
+        setAvailableHospitals([]);
+      }
+    };
+    loadHospitals();
+  }, []);
   
   const [formData, setFormData] = useState({
     name: "",

@@ -237,52 +237,56 @@ export const findCompatibleMatches = async (patientId: string): Promise<Match[]>
     const data = await getStoredData();
     const patient = data.patients.find(p => p.id === patientId);
   
-  if (!patient) return [];
+    if (!patient) return [];
 
-  const compatibleDonors = data.donors.filter(donor => {
-    // Blood type compatibility
-    const bloodCompatible = isBloodTypeCompatible(donor.bloodType, patient.bloodType);
-    
-    // Organ availability
-    const organAvailable = donor.registeredOrgans.includes(patient.requiredOrgan);
-    
-    // Age compatibility (within 15 years)
-    const ageCompatible = Math.abs(donor.age - patient.age) <= 15;
-    
-    return bloodCompatible && organAvailable && ageCompatible && donor.isActive;
-  });
+    const compatibleDonors = data.donors.filter(donor => {
+      // Blood type compatibility
+      const bloodCompatible = isBloodTypeCompatible(donor.bloodType, patient.bloodType);
+      
+      // Organ availability
+      const organAvailable = donor.registeredOrgans.includes(patient.requiredOrgan);
+      
+      // Age compatibility (within 15 years)
+      const ageCompatible = Math.abs(donor.age - patient.age) <= 15;
+      
+      return bloodCompatible && organAvailable && ageCompatible && donor.isActive;
+    });
 
-  return compatibleDonors.map(donor => ({
-    id: `M-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    donor: {
-      id: donor.id,
-      name: donor.name,
-      age: donor.age,
-      bloodType: donor.bloodType,
-      organ: donor.registeredOrgans[0] || 'Unknown',
-      status: donor.isActive ? 'Available' : 'Inactive',
-      matchScore: calculateCompatibilityScore(donor, patient),
-      registrationDate: donor.registrationDate,
-      image: donor.profileImage || 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-    } as Donor,
-    recipient: {
-      id: patient.id,
-      name: patient.name,
-      age: patient.age,
-      bloodType: patient.bloodType,
-      organ: patient.requiredOrgan,
-      urgency: patient.urgencyLevel,
-      matchScore: calculateCompatibilityScore(donor, patient),
-      waitingTime: calculateWaitingTime(patient.waitingListDate),
-      location: patient.hospitalId,
-      image: patient.profileImage || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
-    } as Recipient,
-    compatibility: calculateCompatibilityScore(donor, patient),
-    reasons: generateMatchReasons(donor, patient),
-    predicted_success: getPredictedSuccess(donor, patient),
-    predicted_complications: getPredictedComplications(donor, patient),
-    recommendation: getRecommendation(donor, patient)
-  }));
+    return compatibleDonors.map(donor => ({
+      id: `M-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      donor: {
+        id: donor.id,
+        name: donor.name,
+        age: donor.age,
+        bloodType: donor.bloodType,
+        organ: donor.registeredOrgans[0] || 'Unknown',
+        status: donor.isActive ? 'Available' : 'Inactive',
+        matchScore: calculateCompatibilityScore(donor, patient),
+        registrationDate: donor.registrationDate,
+        image: donor.profileImage || 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+      } as Donor,
+      recipient: {
+        id: patient.id,
+        name: patient.name,
+        age: patient.age,
+        bloodType: patient.bloodType,
+        organ: patient.requiredOrgan,
+        urgency: patient.urgencyLevel,
+        matchScore: calculateCompatibilityScore(donor, patient),
+        waitingTime: calculateWaitingTime(patient.waitingListDate),
+        location: patient.hospitalId,
+        image: patient.profileImage || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+      } as Recipient,
+      compatibility: calculateCompatibilityScore(donor, patient),
+      reasons: generateMatchReasons(donor, patient),
+      predicted_success: getPredictedSuccess(donor, patient),
+      predicted_complications: getPredictedComplications(donor, patient),
+      recommendation: getRecommendation(donor, patient)
+    }));
+  } catch (error) {
+    console.error('Error finding compatible matches:', error);
+    return [];
+  }
 };
 
 // Helper functions
