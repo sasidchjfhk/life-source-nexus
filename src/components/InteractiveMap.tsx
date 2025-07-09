@@ -77,13 +77,14 @@ const InteractiveMap = () => {
         urgencyLevel: r.urgency_level || 1
       }));
 
-      // Mock hospital data
-      const hospitals = [
-        { id: 'h1', name: 'City Medical Center', location: 'Downtown', type: 'General Hospital' },
-        { id: 'h2', name: 'St. Johns Hospital', location: 'Midtown', type: 'Specialty Care' },
-        { id: 'h3', name: 'Metro Health', location: 'Uptown', type: 'Trauma Center' },
-        { id: 'h4', name: 'Regional Medical', location: 'Westside', type: 'Research Hospital' }
-      ];
+      // Fetch real hospital data
+      const hospitalsRes = await supabase.from('hospitals').select('*');
+      const hospitals = (hospitalsRes.data || []).map(h => ({
+        id: h.id,
+        name: h.name,
+        location: h.address?.split(',')[0] || 'Unknown',
+        type: h.hospital_type
+      }));
 
       setMapData({ donors, recipients, hospitals });
     } catch (error) {

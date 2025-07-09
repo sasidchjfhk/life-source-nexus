@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { supabaseDataService } from "@/services/supabaseDataService";
 import { DonorProfile, HospitalProfile, DoctorProfile } from "@/models/userData";
+import AdminApprovalPanel from "@/components/AdminApprovalPanel";
 import { 
   Users, 
   Hospital, 
@@ -25,10 +26,14 @@ import {
 const AdminDashboard = () => {
   const [donors, setDonors] = useState<any[]>([]);
   const [recipients, setRecipients] = useState<any[]>([]);
+  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
   const [matches, setMatches] = useState<any[]>([]);
   const [stats, setStats] = useState({
     totalDonors: 0,
     totalPatients: 0,
+    totalHospitals: 0,
+    totalDoctors: 0,
     totalMatches: 0,
     successfulTransplants: 0
   });
@@ -37,19 +42,25 @@ const AdminDashboard = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [donorsData, recipientsData, matchesData] = await Promise.all([
+      const [donorsData, recipientsData, hospitalsData, doctorsData, matchesData] = await Promise.all([
         supabaseDataService.getDonors(),
         supabaseDataService.getRecipients(),
+        supabaseDataService.getHospitals(),
+        supabaseDataService.getDoctors(),
         supabaseDataService.getMatches()
       ]);
 
       setDonors(donorsData);
       setRecipients(recipientsData);
+      setHospitals(hospitalsData);
+      setDoctors(doctorsData);
       setMatches(matchesData);
       
       setStats({
         totalDonors: donorsData.length,
         totalPatients: recipientsData.length,
+        totalHospitals: hospitalsData.length,
+        totalDoctors: doctorsData.length,
         totalMatches: matchesData.length,
         successfulTransplants: matchesData.filter(m => m.status === 'completed').length
       });
@@ -151,12 +162,18 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="donors" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="approvals" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="approvals">Approvals</TabsTrigger>
             <TabsTrigger value="donors">Donors</TabsTrigger>
             <TabsTrigger value="recipients">Recipients</TabsTrigger>
+            <TabsTrigger value="hospitals">Hospitals</TabsTrigger>
             <TabsTrigger value="matches">Matches</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="approvals">
+            <AdminApprovalPanel />
+          </TabsContent>
           
           <TabsContent value="donors" className="space-y-4">
             <Card>
@@ -251,6 +268,56 @@ const AdminDashboard = () => {
                   {recipients.length === 0 && (
                     <p className="text-center text-muted-foreground py-8">
                       No recipients registered yet
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="hospitals" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Registered Hospitals</CardTitle>
+                <CardDescription>
+                  All registered healthcare facilities
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {hospitals.map((hospital) => (
+                    <div key={hospital.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <Avatar>
+                          <AvatarImage src="" />
+                          <AvatarFallback>
+                            {hospital.name.split(' ').map((n: string) => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{hospital.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {hospital.hospital_type} • {hospital.bed_capacity} beds • {hospital.address}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant={hospital.approval_status === 'approved' ? "default" : hospital.approval_status === 'pending' ? "secondary" : "destructive"}>
+                              {hospital.approval_status}
+                            </Badge>
+                            <Badge variant="outline">
+                              License: {hospital.license_number}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-muted-foreground">ID</p>
+                        <p className="font-mono text-xs">{hospital.id.slice(0, 8)}...</p>
+                      </div>
+                    </div>
+                  ))}
+                  {hospitals.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">
+                      No hospitals registered yet
                     </p>
                   )}
                 </div>

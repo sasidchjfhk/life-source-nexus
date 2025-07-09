@@ -10,6 +10,7 @@ export interface SupabaseDonor {
   location?: string;
   availability: boolean;
   created_at: string;
+  approval_status?: string;
 }
 
 export interface SupabaseRecipient {
@@ -38,8 +39,7 @@ export class SupabaseDataService {
     try {
       const { data, error } = await supabase
         .from('donors')
-        .select('*')
-        .eq('availability', true);
+        .select('*');
       
       if (error) throw error;
       return data || [];
@@ -59,6 +59,84 @@ export class SupabaseDataService {
       return data || [];
     } catch (error) {
       console.error('Error fetching recipients:', error);
+      throw error;
+    }
+  }
+
+  async getHospitals(): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('hospitals')
+        .select('*');
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching hospitals:', error);
+      throw error;
+    }
+  }
+
+  async getDoctors(): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('doctors')
+        .select('*');
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+      throw error;
+    }
+  }
+
+  async getApprovals(): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('approvals')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching approvals:', error);
+      throw error;
+    }
+  }
+
+  async updateApprovalStatus(approvalId: string, status: string, comments?: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('approvals')
+        .update({ 
+          status, 
+          comments,
+          approved_at: status === 'approved' ? new Date().toISOString() : null 
+        })
+        .eq('id', approvalId);
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating approval status:', error);
+      throw error;
+    }
+  }
+
+  async createApproval(entityType: string, entityId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('approvals')
+        .insert({
+          entity_type: entityType,
+          entity_id: entityId,
+          status: 'pending'
+        });
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error creating approval:', error);
       throw error;
     }
   }

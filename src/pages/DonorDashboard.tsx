@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabaseDataService } from "@/services/supabaseDataService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,9 +33,8 @@ const DonorDashboard = () => {
   const isMobile = useIsMobile();
   const [progress, setProgress] = useState(68);
   
-  // Simulated donor profile
-  const donorProfile = {
-    name: "John Doe",
+  const [donorProfile, setDonorProfile] = useState({
+    name: "Loading...",
     type: "Donor & Recipient",
     bloodType: "O+",
     registeredOrgans: ["Kidney", "Liver"],
@@ -43,7 +43,34 @@ const DonorDashboard = () => {
     registrationDate: "March 15, 2025",
     walletConnected: true,
     badgesMinted: 2
-  };
+  });
+
+  useEffect(() => {
+    // Load real donor data
+    const loadDonorData = async () => {
+      try {
+        const donors = await supabaseDataService.getDonors();
+        if (donors.length > 0) {
+          const latestDonor = donors[donors.length - 1];
+          setDonorProfile({
+            name: latestDonor.name,
+            type: "Donor",
+            bloodType: latestDonor.blood_type,
+            registeredOrgans: [latestDonor.organ],
+            matchScore: 87,
+            urgencyLevel: "Medium",
+            registrationDate: new Date(latestDonor.created_at).toLocaleDateString(),
+            walletConnected: true,
+            badgesMinted: (latestDonor as any).approval_status === 'approved' ? 2 : 1
+          });
+        }
+      } catch (error) {
+        console.error('Error loading donor data:', error);
+      }
+    };
+    
+    loadDonorData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/5">

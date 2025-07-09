@@ -14,8 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      approvals: {
+        Row: {
+          approved_at: string | null
+          approver_id: string | null
+          comments: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approver_id?: string | null
+          comments?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approver_id?: string | null
+          comments?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      doctors: {
+        Row: {
+          approval_status: string
+          created_at: string
+          email: string
+          hospital_id: string | null
+          id: string
+          license_number: string
+          name: string
+          phone: string
+          specialization: string
+          updated_at: string
+          years_of_experience: number | null
+        }
+        Insert: {
+          approval_status?: string
+          created_at?: string
+          email: string
+          hospital_id?: string | null
+          id?: string
+          license_number: string
+          name: string
+          phone: string
+          specialization: string
+          updated_at?: string
+          years_of_experience?: number | null
+        }
+        Update: {
+          approval_status?: string
+          created_at?: string
+          email?: string
+          hospital_id?: string | null
+          id?: string
+          license_number?: string
+          name?: string
+          phone?: string
+          specialization?: string
+          updated_at?: string
+          years_of_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doctors_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       donors: {
         Row: {
+          approval_status: string
           availability: boolean | null
           blood_type: string
           created_at: string | null
@@ -25,6 +112,7 @@ export type Database = {
           organ: string
         }
         Insert: {
+          approval_status?: string
           availability?: boolean | null
           blood_type: string
           created_at?: string | null
@@ -34,6 +122,7 @@ export type Database = {
           organ: string
         }
         Update: {
+          approval_status?: string
           availability?: boolean | null
           blood_type?: string
           created_at?: string | null
@@ -41,6 +130,54 @@ export type Database = {
           location?: string | null
           name?: string
           organ?: string
+        }
+        Relationships: []
+      }
+      hospitals: {
+        Row: {
+          address: string
+          approval_status: string
+          bed_capacity: number | null
+          contact_person: string
+          created_at: string
+          email: string
+          hospital_type: string
+          id: string
+          license_number: string
+          name: string
+          phone: string
+          specialties: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          approval_status?: string
+          bed_capacity?: number | null
+          contact_person: string
+          created_at?: string
+          email: string
+          hospital_type: string
+          id?: string
+          license_number: string
+          name: string
+          phone: string
+          specialties?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          approval_status?: string
+          bed_capacity?: number | null
+          contact_person?: string
+          created_at?: string
+          email?: string
+          hospital_type?: string
+          id?: string
+          license_number?: string
+          name?: string
+          phone?: string
+          specialties?: string[] | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -89,8 +226,45 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          phone: string | null
+          profile_data: Json | null
+          updated_at: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          profile_data?: Json | null
+          updated_at?: string
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          phone?: string | null
+          profile_data?: Json | null
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
       recipients: {
         Row: {
+          approval_status: string
           blood_type: string
           created_at: string | null
           id: string
@@ -100,6 +274,7 @@ export type Database = {
           urgency_level: number | null
         }
         Insert: {
+          approval_status?: string
           blood_type: string
           created_at?: string | null
           id?: string
@@ -109,6 +284,7 @@ export type Database = {
           urgency_level?: number | null
         }
         Update: {
+          approval_status?: string
           blood_type?: string
           created_at?: string | null
           id?: string

@@ -135,13 +135,20 @@ export const saveData = (data: RegistrationData): void => {
 // User registration functions - now use Supabase
 export const registerDonor = async (donor: DonorProfile): Promise<boolean> => {
   try {
-    await supabase.from('donors').insert({
+    const { data, error } = await supabase.from('donors').insert({
       name: donor.name,
       blood_type: donor.bloodType,
       organ: donor.registeredOrgans[0] || 'Unknown',
       location: donor.address,
-      availability: donor.isActive
-    });
+      availability: donor.isActive,
+      approval_status: 'pending'
+    }).select().single();
+    
+    if (error) throw error;
+    
+    // Create approval record
+    await supabaseDataService.createApproval('donor', data.id);
+    
     return true;
   } catch (error) {
     console.error('Error registering donor:', error);
@@ -151,15 +158,22 @@ export const registerDonor = async (donor: DonorProfile): Promise<boolean> => {
 
 export const registerPatient = async (patient: PatientProfile): Promise<boolean> => {
   try {
-    await supabase.from('recipients').insert({
+    const { data, error } = await supabase.from('recipients').insert({
       name: patient.name,
       blood_type: patient.bloodType,
       required_organ: patient.requiredOrgan,
       location: patient.address,
       urgency_level: patient.urgencyLevel === 'Critical' ? 10 : 
                      patient.urgencyLevel === 'High' ? 8 : 
-                     patient.urgencyLevel === 'Medium' ? 6 : 4
-    });
+                     patient.urgencyLevel === 'Medium' ? 6 : 4,
+      approval_status: 'pending'
+    }).select().single();
+    
+    if (error) throw error;
+    
+    // Create approval record
+    await supabaseDataService.createApproval('recipient', data.id);
+    
     return true;
   } catch (error) {
     console.error('Error registering patient:', error);
@@ -168,15 +182,54 @@ export const registerPatient = async (patient: PatientProfile): Promise<boolean>
 };
 
 export const registerDoctor = async (doctor: DoctorProfile): Promise<boolean> => {
-  // This would require a doctors table in Supabase
-  console.warn('Doctor registration not implemented - requires doctors table');
-  return false;
+  try {
+    const { data, error } = await supabase.from('doctors').insert({
+      name: doctor.name,
+      email: doctor.email,
+      phone: doctor.phone,
+      license_number: doctor.licenseNumber || 'LIC-' + Math.random().toString(36).substr(2, 9),
+      specialization: Array.isArray(doctor.specialization) ? doctor.specialization[0] || 'General Medicine' : doctor.specialization || 'General Medicine',
+      years_of_experience: doctor.yearsOfExperience || 5,
+      approval_status: 'pending'
+    }).select().single();
+    
+    if (error) throw error;
+    
+    // Create approval record
+    await supabaseDataService.createApproval('doctor', data.id);
+    
+    return true;
+  } catch (error) {
+    console.error('Error registering doctor:', error);
+    return false;
+  }
 };
 
 export const registerHospital = async (hospital: HospitalProfile): Promise<boolean> => {
-  // This would require a hospitals table in Supabase
-  console.warn('Hospital registration not implemented - requires hospitals table');
-  return false;
+  try {
+    const { data, error } = await supabase.from('hospitals').insert({
+      name: hospital.hospitalName,
+      address: hospital.address,
+      contact_person: hospital.name,
+      email: hospital.email,
+      phone: hospital.phone,
+      license_number: 'LIC-' + Math.random().toString(36).substr(2, 9),
+      hospital_type: hospital.hospitalType,
+      specialties: hospital.servicesOffered,
+      bed_capacity: hospital.capacity,
+      approval_status: 'pending'
+    }).select().single();
+    
+    if (error) throw error;
+    
+    // Create approval record
+    await supabaseDataService.createApproval('hospital', data.id);
+    
+    return true;
+  } catch (error) {
+    console.error('Error registering hospital:', error);
+    return false;
+  }
 };
 
 // Data retrieval functions - now use Supabase
