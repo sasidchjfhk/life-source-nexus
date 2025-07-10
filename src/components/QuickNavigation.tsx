@@ -49,7 +49,7 @@ const QuickNavigation = () => {
           </Link>
         </Button>
         <Button asChild variant="outline" size="sm" className="gap-1">
-          <Link to="/admin-dashboard">
+          <Link to="/admin">
             <ShieldCheck className="h-4 w-4" />
             <span>Admin Portal</span>
           </Link>

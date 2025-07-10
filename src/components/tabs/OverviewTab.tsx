@@ -148,7 +148,7 @@ const OverviewTab = () => {
               Administrative tools for hospital verification and fraud detection.
             </p>
             <Button asChild variant="ghost" className="w-full group">
-              <Link to="/admin-dashboard" className="flex items-center justify-between">
+              <Link to="/admin" className="flex items-center justify-between">
                 <span>Admin Login</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>

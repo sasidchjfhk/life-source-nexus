@@ -128,7 +128,7 @@ const Index = () => {
             navigate("/hospital-dashboard");
             break;
           case "admin":
-            navigate("/admin-dashboard");
+            navigate("/admin");
             break;
         }
       }, 1000);
