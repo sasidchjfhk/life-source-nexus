@@ -102,7 +102,6 @@ export type Database = {
       }
       donors: {
         Row: {
-          approval_status: string
           availability: boolean | null
           blood_type: string
           created_at: string | null
@@ -112,7 +111,6 @@ export type Database = {
           organ: string
         }
         Insert: {
-          approval_status?: string
           availability?: boolean | null
           blood_type: string
           created_at?: string | null
@@ -122,7 +120,6 @@ export type Database = {
           organ: string
         }
         Update: {
-          approval_status?: string
           availability?: boolean | null
           blood_type?: string
           created_at?: string | null
@@ -264,7 +261,6 @@ export type Database = {
       }
       recipients: {
         Row: {
-          approval_status: string
           blood_type: string
           created_at: string | null
           id: string
@@ -274,7 +270,6 @@ export type Database = {
           urgency_level: number | null
         }
         Insert: {
-          approval_status?: string
           blood_type: string
           created_at?: string | null
           id?: string
@@ -284,7 +279,6 @@ export type Database = {
           urgency_level?: number | null
         }
         Update: {
-          approval_status?: string
           blood_type?: string
           created_at?: string | null
           id?: string
