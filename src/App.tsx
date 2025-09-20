@@ -8,6 +8,7 @@ import { Web3Provider } from "./contexts/Web3Context";
 import Index from "./pages/Index";
 import Register from "./pages/Register";
 import DonorRegistration from "./pages/DonorRegistration";
+import RecipientRegistration from "./pages/RecipientRegistration";
 import HospitalRegistration from "./pages/HospitalRegistration";
 import DoctorRegistration from "./pages/DoctorRegistration";
 import DonorDashboard from "./pages/DonorDashboard";
@@ -21,8 +22,8 @@ import { useState, createContext, useContext } from "react";
 interface AuthContextType {
   isLoggedIn: boolean;
   userName: string;
-  userRole: "donor" | "hospital" | "admin" | null;
-  login: (name: string, role: "donor" | "hospital" | "admin") => void;
+  userRole: "donor" | "hospital" | "admin" | "recipient" | null;
+  login: (name: string, role: "donor" | "hospital" | "admin" | "recipient") => void;
   logout: () => void;
 }
 
@@ -59,14 +60,14 @@ const App = () => {
   // Auth state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
-  const [userRole, setUserRole] = useState<"donor" | "hospital" | "admin" | null>(null);
+  const [userRole, setUserRole] = useState<"donor" | "hospital" | "admin" | "recipient" | null>(null);
   
   // Wallet state
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState("");
   
   // Auth functions
-  const login = (name: string, role: "donor" | "hospital" | "admin") => {
+  const login = (name: string, role: "donor" | "hospital" | "admin" | "recipient") => {
     setIsLoggedIn(true);
     setUserName(name);
     setUserRole(role);
@@ -102,6 +103,7 @@ const App = () => {
                   <Route path="/" element={<Index />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/donor-registration" element={<DonorRegistration />} />
+                  <Route path="/recipient-registration" element={<RecipientRegistration />} />
                   <Route path="/hospital-registration" element={<HospitalRegistration />} />
                   <Route path="/doctor-registration" element={<DoctorRegistration />} />
                   <Route path="/donor-dashboard" element={<DonorDashboard />} />

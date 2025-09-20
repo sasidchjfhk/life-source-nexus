@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -102,30 +102,39 @@ export type Database = {
       }
       donors: {
         Row: {
+          approval_status: string | null
           availability: boolean | null
           blood_type: string
           created_at: string | null
           id: string
           location: string | null
           name: string
+          nft_badges: Json | null
+          nft_count: number | null
           organ: string
         }
         Insert: {
+          approval_status?: string | null
           availability?: boolean | null
           blood_type: string
           created_at?: string | null
           id?: string
           location?: string | null
           name: string
+          nft_badges?: Json | null
+          nft_count?: number | null
           organ: string
         }
         Update: {
+          approval_status?: string | null
           availability?: boolean | null
           blood_type?: string
           created_at?: string | null
           id?: string
           location?: string | null
           name?: string
+          nft_badges?: Json | null
+          nft_count?: number | null
           organ?: string
         }
         Relationships: []
@@ -223,6 +232,48 @@ export type Database = {
           },
         ]
       }
+      nft_badges: {
+        Row: {
+          badge_name: string
+          badge_type: string
+          blockchain_tx_hash: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          minted_at: string | null
+          updated_at: string | null
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          badge_name: string
+          badge_type: string
+          blockchain_tx_hash?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          minted_at?: string | null
+          updated_at?: string | null
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          badge_name?: string
+          badge_type?: string
+          blockchain_tx_hash?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          minted_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -261,29 +312,38 @@ export type Database = {
       }
       recipients: {
         Row: {
+          approval_status: string | null
           blood_type: string
           created_at: string | null
           id: string
           location: string | null
           name: string
+          nft_badges: Json | null
+          nft_count: number | null
           required_organ: string
           urgency_level: number | null
         }
         Insert: {
+          approval_status?: string | null
           blood_type: string
           created_at?: string | null
           id?: string
           location?: string | null
           name: string
+          nft_badges?: Json | null
+          nft_count?: number | null
           required_organ: string
           urgency_level?: number | null
         }
         Update: {
+          approval_status?: string | null
           blood_type?: string
           created_at?: string | null
           id?: string
           location?: string | null
           name?: string
+          nft_badges?: Json | null
+          nft_count?: number | null
           required_organ?: string
           urgency_level?: number | null
         }
@@ -294,7 +354,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      mint_donor_nft_badge: {
+        Args: { badge_name?: string; badge_type: string; donor_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

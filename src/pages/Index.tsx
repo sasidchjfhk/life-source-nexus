@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
-import Header from "@/components/Header";
+import ProductionHeader from "@/components/ProductionHeader";
 import Footer from "@/components/Footer";
 import OverviewTab from "@/components/tabs/OverviewTab";
 import OrganGalleryTab from "@/components/tabs/OrganGalleryTab";
@@ -166,16 +166,12 @@ const Index = () => {
       </div>
       
       <div className="relative z-10">
-        <Header 
+        <ProductionHeader 
           isLoggedIn={isLoggedIn}
           userName={userName}
-          walletConnected={isConnected}
-          walletAddress={address}
+          userType={userRole || "donor"}
           onLogout={handleLogout}
           onLogin={handleGoogleLogin}
-          onWalletConnect={connectWallet}
-          onWalletDisconnect={disconnect}
-          userType={userRole || "donor"}
         />
         
         {/* Enhanced Hero Banner */}

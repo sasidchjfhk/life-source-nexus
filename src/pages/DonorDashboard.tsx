@@ -308,23 +308,26 @@ const DonorDashboard = () => {
         {/* NFT Badge Card */}
         <Card>
           <CardHeader>
-            <CardTitle>NFT Badges</CardTitle>
-            <CardDescription>Your minted achievements</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Medal className="h-5 w-5 text-primary" />
+              NFT Badges
+            </CardTitle>
+            <CardDescription>Your blockchain achievements</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col items-center rounded-lg border p-4 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
-                <Medal className="h-10 w-10 text-amber-500 mb-2" />
+              <div className="flex flex-col items-center rounded-lg border p-4 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
+                <Medal className="h-10 w-10 text-red-500 mb-2" />
                 <h3 className="text-sm font-medium">Donor Registration</h3>
                 <p className="text-xs text-muted-foreground mt-1 text-center">
-                  Pledged organ donation on the blockchain
+                  Blockchain-verified donor profile
                 </p>
               </div>
               <div className="flex flex-col items-center rounded-lg border p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
                 <Medal className="h-10 w-10 text-blue-500 mb-2" />
                 <h3 className="text-sm font-medium">Medical Verification</h3>
                 <p className="text-xs text-muted-foreground mt-1 text-center">
-                  Completed medical screening process
+                  Medical screening completed
                 </p>
               </div>
             </div>
