@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import ProductionHeader from "@/components/ProductionHeader";
 import Footer from "@/components/Footer";
@@ -174,84 +176,71 @@ const Index = () => {
           onLogin={handleGoogleLogin}
         />
         
-        {/* Enhanced Hero Banner */}
-        <div className="relative h-[400px] md:h-[500px] overflow-hidden">
-          <Carousel className="w-full h-full" opts={{ loop: true }}>
-            <CarouselContent>
-              {featuredImages.map((image, index) => (
-                <CarouselItem key={index} className="w-full h-full">
-                  <div className="relative w-full h-full">
-                    <img 
-                      src={image} 
-                      alt={`Medical innovation ${index+1}`}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-background/90 to-background/30 flex items-center">
-                      <div className="container">
-                        <div className="max-w-2xl">
-                          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-red-500 via-pink-500 to-blue-500 bg-clip-text text-transparent">
-                            Revolutionizing Organ Donation
-                          </h1>
-                          <p className="text-xl md:text-2xl mb-8 text-muted-foreground">
-                            Secure, transparent, and efficient organ donation management powered by AI and blockchain technology.
-                          </p>
-                          
-                          {/* Live Statistics */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0">
-                              <CardContent className="p-4 text-center">
-                                <Heart className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                                <div className="text-2xl font-bold text-red-500">{stats.totalDonors}</div>
-                                <div className="text-xs text-muted-foreground">Donors</div>
-                              </CardContent>
-                            </Card>
-                            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0">
-                              <CardContent className="p-4 text-center">
-                                <Users className="h-6 w-6 text-blue-500 mx-auto mb-2" />
-                                <div className="text-2xl font-bold text-blue-500">{stats.totalPatients}</div>
-                                <div className="text-xs text-muted-foreground">Patients</div>
-                              </CardContent>
-                            </Card>
-                            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0">
-                              <CardContent className="p-4 text-center">
-                                <Activity className="h-6 w-6 text-green-500 mx-auto mb-2" />
-                                <div className="text-2xl font-bold text-green-500">{stats.activeMatches}</div>
-                                <div className="text-xs text-muted-foreground">Active Matches</div>
-                              </CardContent>
-                            </Card>
-                            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0">
-                              <CardContent className="p-4 text-center">
-                                <Award className="h-6 w-6 text-purple-500 mx-auto mb-2" />
-                                <div className="text-2xl font-bold text-purple-500">{stats.successfulTransplants}</div>
-                                <div className="text-xs text-muted-foreground">Successful</div>
-                              </CardContent>
-                            </Card>
-                          </div>
-                          
-                          {/* Enhanced Features */}
-                          <div className="flex flex-wrap gap-2 mb-6">
-                            <Badge className="bg-red-500/20 text-red-500 border-red-500/30">
-                              <Sparkles className="h-3 w-3 mr-1" />
-                              AI-Powered Matching
-                            </Badge>
-                            <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">
-                              Blockchain Secured
-                            </Badge>
-                            <Badge className="bg-green-500/20 text-green-500 border-green-500/30">
-                              NFT Certification
-                            </Badge>
-                            <Badge className="bg-purple-500/20 text-purple-500 border-purple-500/30">
-                              Real-time Tracking
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+        {/* Hero Banner */}
+        <div className="relative py-16 bg-gradient-to-r from-primary/10 to-secondary/10">
+          <div className="container">
+            <div className="max-w-2xl">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-red-500 via-pink-500 to-blue-500 bg-clip-text text-transparent">
+                Revolutionizing Organ Donation
+              </h1>
+              <p className="text-xl md:text-2xl mb-8 text-muted-foreground">
+                Secure, transparent, and efficient organ donation management powered by AI and blockchain technology.
+              </p>
+              
+              {/* Live Statistics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0">
+                  <CardContent className="p-4 text-center">
+                    <Heart className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-red-500">{stats.totalDonors}</div>
+                    <div className="text-xs text-muted-foreground">Donors</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0">
+                  <CardContent className="p-4 text-center">
+                    <Users className="h-6 w-6 text-blue-500 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-blue-500">{stats.totalPatients}</div>
+                    <div className="text-xs text-muted-foreground">Patients</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0">
+                  <CardContent className="p-4 text-center">
+                    <Activity className="h-6 w-6 text-green-500 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-green-500">{stats.activeMatches}</div>
+                    <div className="text-xs text-muted-foreground">Active Matches</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0">
+                  <CardContent className="p-4 text-center">
+                    <Award className="h-6 w-6 text-purple-500 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-purple-500">{stats.successfulTransplants}</div>
+                    <div className="text-xs text-muted-foreground">Successful</div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Enhanced Features */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                <Badge className="bg-red-500/20 text-red-500 border-red-500/30">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  AI-Powered Matching
+                </Badge>
+                <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">
+                  Blockchain Secured
+                </Badge>
+                <Badge className="bg-green-500/20 text-green-500 border-green-500/30">
+                  NFT Certification
+                </Badge>
+                <Badge className="bg-purple-500/20 text-purple-500 border-purple-500/30">
+                  Real-time Tracking
+                </Badge>
+              </div>
+              
+              <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Link to="/auth">Get Started</Link>
+              </Button>
+            </div>
+          </div>
         </div>
         
         <main className="flex-1 container py-8">
