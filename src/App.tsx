@@ -12,8 +12,10 @@ import RecipientRegistration from "./pages/RecipientRegistration";
 import HospitalRegistration from "./pages/HospitalRegistration";
 import DoctorRegistration from "./pages/DoctorRegistration";
 import DonorDashboard from "./pages/DonorDashboard";
+import RecipientDashboard from "./pages/RecipientDashboard";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import DonorDetails from "./pages/DonorDetails";
 import { useState, createContext, useContext } from "react";
@@ -101,12 +103,14 @@ const App = () => {
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<AuthPage />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/donor-registration" element={<DonorRegistration />} />
                   <Route path="/recipient-registration" element={<RecipientRegistration />} />
                   <Route path="/hospital-registration" element={<HospitalRegistration />} />
                   <Route path="/doctor-registration" element={<DoctorRegistration />} />
                   <Route path="/donor-dashboard" element={<DonorDashboard />} />
+                  <Route path="/recipient-dashboard" element={<RecipientDashboard />} />
                   <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/donor/:id" element={<DonorDetails />} />

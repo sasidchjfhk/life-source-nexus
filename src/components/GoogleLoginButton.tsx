@@ -9,7 +9,7 @@ interface GoogleLoginButtonProps {
   buttonText?: string;
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   size?: "default" | "sm" | "lg" | "icon";
-  userType?: "donor" | "hospital" | "admin";
+  userType?: "donor" | "hospital" | "admin" | "recipient";
 }
 
 const GoogleLoginButton = ({
@@ -54,6 +54,12 @@ const GoogleLoginButton = ({
           mockUserData = {
             name: "Admin Michael",
             email: "michael.admin@lifesourcenexus.org"
+          };
+          break;
+        case "recipient":
+          mockUserData = {
+            name: "Sarah Patient",
+            email: "sarah.patient@example.com"
           };
           break;
         default:
