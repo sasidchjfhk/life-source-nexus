@@ -19,12 +19,27 @@ import {
   ChevronRight,
   Search,
   Microscope,
-  Heart
+  Heart,
+  Stethoscope,
+  Users,
+  Activity,
+  DollarSign,
+  FlaskConical,
+  Pill,
+  Building,
+  TrendingUp,
+  AlertTriangle,
+  Phone,
+  Shield,
+  MapPin
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 import OrganMatchingPanel from "@/components/OrganMatchingPanel";
 import MedicalStaffDirectory from "@/components/MedicalStaffDirectory";
+import PatientManagement from "@/components/hospital/PatientManagement";
+import EquipmentManagement from "@/components/hospital/EquipmentManagement";
+import StaffManagement from "@/components/hospital/StaffManagement";
 import { toast } from "@/components/ui/use-toast";
 
 const HospitalDashboard = () => {
@@ -40,7 +55,15 @@ const HospitalDashboard = () => {
     pendingVerifications: 5,
     approvedTransplants: 24,
     waitingRecipients: 12,
-    registeredDoctors: 8
+    registeredDoctors: 8,
+    totalPatients: 147,
+    emergencyAlerts: 3,
+    equipment: 89,
+    revenue: 2400000,
+    occupancyRate: 85,
+    avgWaitTime: 15,
+    labResults: 234,
+    pharmacyOrders: 156
   };
 
   // Simulated pending verifications
@@ -152,90 +175,163 @@ const HospitalDashboard = () => {
         /* Main Content - Only visible when logged in */
         <main className="container py-6">
           {/* Hospital Dashboard Summary */}
-          <div className="grid gap-4 md:grid-cols-4 mb-6">
-            <Card>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200 dark:border-blue-800">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div className="space-y-1">
-                  <CardTitle className="text-sm font-medium">Pending Verifications</CardTitle>
-                </div>
-                <Clipboard className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Patients</CardTitle>
+                <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{hospitalData.pendingVerifications}</div>
-                <p className="text-xs text-muted-foreground">
-                  Requests awaiting verification
+                <div className="text-3xl font-bold text-blue-800 dark:text-blue-200">{hospitalData.totalPatients}</div>
+                <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  <span>+12% from last month</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200 dark:border-green-800">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">Occupancy Rate</CardTitle>
+                <Building className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-800 dark:text-green-200">{hospitalData.occupancyRate}%</div>
+                <div className="w-full bg-green-200 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-green-600 h-2 rounded-full" 
+                    style={{ width: `${hospitalData.occupancyRate}%` }}
+                  ></div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950 dark:to-yellow-900 border-yellow-200 dark:border-yellow-800">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Emergency Alerts</CardTitle>
+                <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-yellow-800 dark:text-yellow-200">{hospitalData.emergencyAlerts}</div>
+                <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                  Active alerts requiring attention
                 </p>
               </CardContent>
             </Card>
-            <Card>
+
+            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-purple-200 dark:border-purple-800">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div className="space-y-1">
-                  <CardTitle className="text-sm font-medium">Approved Transplants</CardTitle>
-                </div>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-300">Equipment Status</CardTitle>
+                <Stethoscope className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{hospitalData.approvedTransplants}</div>
-                <p className="text-xs text-muted-foreground">
-                  Successfully completed
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div className="space-y-1">
-                  <CardTitle className="text-sm font-medium">Waiting Recipients</CardTitle>
-                </div>
-                <Clock className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{hospitalData.waitingRecipients}</div>
-                <p className="text-xs text-muted-foreground">
-                  On transplant waiting list
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div className="space-y-1">
-                  <CardTitle className="text-sm font-medium">Registered Doctors</CardTitle>
-                </div>
-                <UserCog className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{hospitalData.registeredDoctors}</div>
-                <p className="text-xs text-muted-foreground">
-                  Authorized medical staff
+                <div className="text-3xl font-bold text-purple-800 dark:text-purple-200">{hospitalData.equipment}</div>
+                <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                  Active medical equipment
                 </p>
               </CardContent>
             </Card>
           </div>
 
+          {/* Quick Stats Row */}
+          <div className="grid gap-4 md:grid-cols-4 mb-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Transplants Completed</CardTitle>
+                <Heart className="h-4 w-4 text-red-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-red-600">{hospitalData.approvedTransplants}</div>
+                <p className="text-xs text-muted-foreground">This month</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Avg. Wait Time</CardTitle>
+                <Clock className="h-4 w-4 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">{hospitalData.avgWaitTime}m</div>
+                <p className="text-xs text-muted-foreground">Emergency dept.</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Lab Results</CardTitle>
+                <FlaskConical className="h-4 w-4 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{hospitalData.labResults}</div>
+                <p className="text-xs text-muted-foreground">Pending review</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Pharmacy Orders</CardTitle>
+                <Pill className="h-4 w-4 text-orange-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-600">{hospitalData.pharmacyOrders}</div>
+                <p className="text-xs text-muted-foreground">Active orders</p>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Main Dashboard Tabs */}
-          <Tabs defaultValue="verification" className="space-y-4" onValueChange={setSelectedTab}>
-            <TabsList>
+          <Tabs defaultValue="patients" className="space-y-4" onValueChange={setSelectedTab}>
+            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-8">
+              <TabsTrigger value="patients" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Patients</span>
+              </TabsTrigger>
+              <TabsTrigger value="staff" className="flex items-center gap-2">
+                <UserCog className="h-4 w-4" />
+                <span className="hidden sm:inline">Staff</span>
+              </TabsTrigger>
+              <TabsTrigger value="equipment" className="flex items-center gap-2">
+                <Stethoscope className="h-4 w-4" />
+                <span className="hidden sm:inline">Equipment</span>
+              </TabsTrigger>
               <TabsTrigger value="verification" className="flex items-center gap-2">
                 <FileCheck className="h-4 w-4" />
-                <span>Verification Requests</span>
+                <span className="hidden sm:inline">Verification</span>
               </TabsTrigger>
               <TabsTrigger value="transplants" className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                <span>Upcoming Transplants</span>
+                <span className="hidden sm:inline">Transplants</span>
               </TabsTrigger>
               <TabsTrigger value="matching" className="flex items-center gap-2">
                 <Heart className="h-4 w-4" />
-                <span>Organ Matching</span>
+                <span className="hidden sm:inline">Matching</span>
               </TabsTrigger>
               <TabsTrigger value="directory" className="flex items-center gap-2">
                 <UserCog className="h-4 w-4" />
-                <span>Medical Directory</span>
+                <span className="hidden sm:inline">Directory</span>
               </TabsTrigger>
               <TabsTrigger value="registry" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                <span>Organ Registry</span>
+                <span className="hidden sm:inline">Registry</span>
               </TabsTrigger>
             </TabsList>
             
+            {/* Patient Management Tab */}
+            <TabsContent value="patients" className="space-y-4">
+              <PatientManagement />
+            </TabsContent>
+
+            {/* Staff Management Tab */}
+            <TabsContent value="staff" className="space-y-4">
+              <StaffManagement />
+            </TabsContent>
+
+            {/* Equipment Management Tab */}
+            <TabsContent value="equipment" className="space-y-4">
+              <EquipmentManagement />
+            </TabsContent>
+
             {/* Verification Requests Tab */}
             <TabsContent value="verification" className="space-y-4">
               <div className="flex items-center justify-between">
